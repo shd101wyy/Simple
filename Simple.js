@@ -196,6 +196,10 @@
 	        addEvent(dom, key, val.bind(obj));
 	      } else if (key === 'ref') {
 	        obj.refs[val] = dom;
+	      } else if (key === 'style' && val.constructor === Object) {
+	        for (var styleKey in val) {
+	          dom.style[styleKey] = val[styleKey];
+	        }
 	      } else {
 	        dom.setAttribute(key, val);
 	      }
