@@ -1,6 +1,6 @@
 'use strict'
 
-
+/*
 let Demo = Simple({
   props: {message: 'default message'},
   render: function() {
@@ -9,6 +9,22 @@ let Demo = Simple({
 })
 
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
+*/
+
+let EventComponent = Simple({
+  state: {'count': 1},
+  render: function() {
+    return this.div(
+              this.p('The count is: ' + this.state.count),
+              this.button({'click': this.onClick.bind(this)}, '+1s'))
+  },
+  onClick: function() {
+    let count = this.state.count
+    this.setState({'count': count+1})   // setState function will render the element again
+  }
+})
+
+EventComponent().appendTo(document.getElementById('app'))
 
 /*
 let Demo = Simple({

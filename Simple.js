@@ -361,9 +361,6 @@
 	      }
 	    }
 
-	    // append children
-	    this.appendChildrenDOMElements(this.children);
-
 	    if (this.element && simpleDOM) {
 	      // replace this.element with newElement
 	      var parentNode = this.element.parentNode; // this should/must exist
@@ -374,6 +371,9 @@
 	    } else {
 	      this.element = newElement;
 	    }
+
+	    // append children
+	    this.appendChildrenDOMElements(this.children);
 
 	    return this.element;
 	  } else {
