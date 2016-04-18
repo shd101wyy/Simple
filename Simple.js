@@ -49,6 +49,7 @@
 	var SimpleBase = __webpack_require__(5);
 
 	function Simple(methods) {
+
 	  var SimpleComponent = function SimpleComponent(props) {
 	    if (!this || !(this instanceof SimpleComponent)) {
 	      return new SimpleComponent(props);
@@ -57,6 +58,13 @@
 	    this.props = props || {};
 
 	    this.init = this.init.bind(this); // bind self
+
+	    /*
+	    for (let key in this.__proto__) { // autobind
+	      if (this.__proto__.hasOwnProperty(key) && !this.__proto__.__proto__[key]) {
+	        this[key] = this.__proto__[key].bind(this)
+	      }
+	    }*/
 
 	    this.init();
 	    this.forceUpdate();
@@ -138,6 +146,8 @@
 	  this.owner = owner || null;
 
 	  this.element = null; // DOM element
+
+	  this._eventListeners = {};
 	}
 
 	/**
@@ -212,6 +222,7 @@
 	        var val = this.attributes[key];
 	        if (isNativeEvent(key)) {
 	          addEvent(this.element, key, val /*.bind(this.owner)*/);
+	          this._eventListeners[key] = val; // save to _eventListeners
 	        } else if (key === 'ref') {
 	            this.owner.refs[val] = this.element;
 	          } else if (key === 'style' && val.constructor === Object) {
@@ -270,23 +281,25 @@
 	              continue;
 	            } else {
 	              // replace event
-	              removeEvent(this.element, _key, this.attributes[_key]);
+	              removeEvent(this.element, _key, this._eventListeners[_key]);
 	              addEvent(this.element, _key, _val /*.bind(owner)*/);
+	              this._eventListeners[_key] = _val;
 	            }
 	          } else {
-	              addEvent(this.element, _key, _val /*.bind(owner)*/);
-	            }
-	        } else if (_key === 'ref') {
-	            owner.refs[_val] = this.element;
-	          } else if (_key === 'style' && _val.constructor === Object) {
-	            // remove old inline style
-	            this.element.setAttribute('style', ''); // here might be wrong
-	            for (var _styleKey in _val) {
-	              this.element.style[_styleKey] = _val[_styleKey];
-	            }
-	          } else {
-	            this.element.setAttribute(_key, _val);
+	            addEvent(this.element, _key, _val /*.bind(owner)*/);
+	            this._eventListeners[_key] = _val;
 	          }
+	        } else if (_key === 'ref') {
+	          owner.refs[_val] = this.element;
+	        } else if (_key === 'style' && _val.constructor === Object) {
+	          // remove old inline style
+	          this.element.setAttribute('style', ''); // here might be wrong
+	          for (var _styleKey in _val) {
+	            this.element.style[_styleKey] = _val[_styleKey];
+	          }
+	        } else {
+	          this.element.setAttribute(_key, _val);
+	        }
 	      }
 	    } else if (this.attributes) {
 	      // remove all attributes in this.attributes

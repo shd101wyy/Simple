@@ -22,22 +22,51 @@ let demo = Demo().appendTo(document.getElementById('app'))
 demo.setState({message: 'world'})
 */
 
-
+/*
 let Demo = Simple({
   state: {count: 1},
+  init: function() {
+    this.onClick = this.onClick.bind(this)
+  },
   render: function() {
     return this.div(
               this.p(this.state.count),
-              this.button({click: this.onClick.bind(this)}, '+1'))
+              this.button({click: this.onClick}, '+1'))
   },
-  onClick: ()=> {
+  onClick: function() {
     let count = this.state.count + 1
     this.setState({count: count})
   }
 })
 
 Demo().appendTo(document.getElementById('app'))
+*/
 
+/*
+let Demo = Simple({
+  state: {count: 1},
+  init: function() {
+    this.onClick = this.onClick.bind(this)
+  },
+  render: function() {
+    return this.div(
+              this.p(this.state.count),
+              this.button({click: (this.state.count % 2 === 1 ? this.onClick.bind(this) : this.onClick2.bind(this)) }, '+1'))
+  },
+  onClick: function() {
+    console.log('onClick 1')
+    let count = this.state.count + 1
+    this.setState({count: count})
+  },
+  onClick2: function() {
+    console.log('onClick 2')
+    let count = this.state.count + 1
+    this.setState({count: count})
+  }
+})
+
+Demo().appendTo(document.getElementById('app'))
+*/
 /*
 let Demo = Simple({
   state: {text: ''},
