@@ -1,6 +1,5 @@
 'use strict'
 
-/*
 let Demo = Simple({
   render: function() {
     return  this.div(this.props.message)
@@ -8,8 +7,8 @@ let Demo = Simple({
 })
 
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
-*/
 
+/*
 let Demo = Simple({
   state: {text: ''},
   render: function() {
@@ -27,7 +26,7 @@ let Demo = Simple({
 })
 
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
-
+*/
 /*
 let TodoItem = Simple({
   render: function() {

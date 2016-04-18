@@ -44,70 +44,53 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {'use strict';
+	'use strict';
 
-	var SimpleClass = __webpack_require__(2);
+	var SimpleBase = __webpack_require__(5);
 
 	function Simple(methods) {
-	  var SimpleObject = function SimpleObject(props) {
-	    if (!this || !(this instanceof SimpleObject)) {
-	      return new SimpleObject(props);
+	  var SimpleComponent = function SimpleComponent(props) {
+	    if (!this || !(this instanceof SimpleComponent)) {
+	      return new SimpleComponent(props);
 	    }
-	    SimpleClass.call(this);
+	    SimpleBase.call(this);
 	    this.props = props || {};
 
 	    this.init();
 	  };
 
-	  SimpleObject.prototype = Object.create(SimpleClass.prototype);
+	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
 
 	  for (var key in methods) {
 	    // if (methods.hasOwnProperty(key)) {
 	    if (key === 'state') {
-	      SimpleObject.prototype.getInitialState = function () {
+	      SimpleComponent.prototype.getInitialState = function () {
 	        return Object.assign({}, methods.state);
 	      };
 	    } else {
-	      SimpleObject.prototype[key] = methods[key];
+	      SimpleComponent.prototype[key] = methods[key];
 	    }
 	    // }
 	  }
 
-	  SimpleObject.prototype.constructor = SimpleObject;
+	  SimpleComponent.prototype.constructor = SimpleComponent;
 
-	  return SimpleObject;
+	  return SimpleComponent;
 	}
 
-	if (module) {
-	  module.exports = Simple;
-	}
+	module.exports = Simple;
 
 	window.Simple = Simple;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ },
-/* 1 */
+/* 1 */,
+/* 2 */,
+/* 3 */,
+/* 4 */
 /***/ function(module, exports) {
 
-	module.exports = function(module) {
-		if(!module.webpackPolyfill) {
-			module.deprecate = function() {};
-			module.paths = [];
-			// module.parent = undefined by default
-			module.children = [];
-			module.webpackPolyfill = 1;
-		}
-		return module;
-	}
-
-
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(module) {'use strict';
-
-	var validTags = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section  select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
+	'use strict';
+	// A kind of Virtual DOM written by Yiyi Wang (shd101wyy)
 
 	function isNativeEvent(eventname) {
 	  return typeof document.body["on" + eventname] !== "undefined";
@@ -127,101 +110,211 @@
 	  }
 	}
 
-	function appendChildren(element, children) {
-	  if (!children.length) return;
-
-	  children.forEach(function (child) {
-	    if (child.constructor === Array) {
-	      appendChildren(element, child);
-	    } else {
-	      if (child instanceof SimpleClass) {
-	        if (!child.element) {
-	          child.element = child.render();
-	        }
-	        element.appendChild(child.element);
-	      } else {
-	        element.appendChild(child);
-	      }
-	    }
-	  });
+	function removeEvent(el, eventType, handler) {
+	  el.removeEventListener(eventType, handler, false);
 	}
 
 	/**
-	 * [createDOMElement]
-	 * @param tagName
-	 *        attributes
-	 *        content
-	 *        children
-	 * @return {[type]} [description]
+	 * [SimpleDOM description]
+	 * @param {[String]} tagName    [description]
+	 * @param {[Object]} attributes [description]
+	 * @param {[String]} content    [description]
+	 * @param {[Array of SimpleDOM]} children   [description]
+	 * @param {SimpleClass} owner
 	 */
-	function createDOMElement(tagName, args, obj) {
-	  var attributes = null,
-	      content = null,
-	      children = [];
+	function SimpleDOM(tagName, attributes, content, children, owner) {
+	  this.tagName = tagName || null;
+	  this.attributes = attributes || {};
+	  this.content = content || null;
+	  this.children = children || [];
+	  this.owner = owner || null;
 
-	  var offset = 0;
-	  if (typeof args[offset] !== 'undefined' && args[offset].constructor === Object) {
-	    attributes = args[offset];
-	    offset += 1;
-	  }
-
-	  if (typeof args[offset] !== 'undefined' && args[offset].constructor === String) {
-	    content = args[offset];
-	    offset += 1;
-	  }
-
-	  if (offset < args.length) children = Array.prototype.slice.call(args, offset);
-
-	  /*
-	  console.log('tagName', tagName)
-	  console.log('attributes', attributes)
-	  console.log('content', content)
-	  console.log('children', children)
-	  console.log('args', args)
-	  */
-
-	  // create DOM
-	  var dom = document.createElement(tagName);
-
-	  // set innerText
-	  if (content) {
-	    dom.innerText = content;
-	  }
-
-	  // set attributes
-	  if (attributes) {
-	    for (var key in attributes) {
-	      var val = attributes[key];
-	      if (isNativeEvent(key)) {
-	        addEvent(dom, key, val.bind(obj));
-	      } else if (key === 'ref') {
-	        obj.refs[val] = dom;
-	      } else if (key === 'style' && val.constructor === Object) {
-	        for (var styleKey in val) {
-	          dom.style[styleKey] = val[styleKey];
-	        }
-	      } else {
-	        dom.setAttribute(key, val);
-	      }
-	    }
-	  }
-
-	  // append children
-	  appendChildren(dom, children);
-
-	  return dom;
+	  this.element = null; // DOM element
 	}
 
-	function SimpleClass() {
-	  this.element = null;
+	/**
+	 * Remove itself
+	 */
+	SimpleDOM.prototype.remove = function () {
+	  if (this.element && this.element.parentNode) {
+	    this.element.parentNode.removeChild(this.element);
+	    this.element = null;
+	  }
+	};
+
+	/**
+	 * Append SimpleDOM simpleDOM as child
+	 * @param  {[SimpleDOM]} simpleDOM [description]
+	 */
+	SimpleDOM.prototype.appendChild = function (simpleDOM) {
+	  this.children.push(simpleDOM);
+	  this.element.appendChild(simpleDOM.element);
+	};
+
+	/**
+	 * Create children DOM elements and append them to this.element
+	 * @param  {[Array of SimpleDOM]} children [description]
+	 * @return {[NULL]}          [description]
+	 */
+	SimpleDOM.prototype.appendNewChildren = function (children) {
+	  var _this = this;
+
+	  if (!children.length) return;
+
+	  this.children.forEach(function (child) {
+	    if (child.constructor === Array) {
+	      _this.appendChildren.apply(_this, child);
+	    } else {
+	      if (child instanceof SimpleDOM) {
+	        _this.element.appendChild(child.toDOM(null));
+	      } else {
+	        _this.element.appendChild(child);
+	      }
+	    }
+	  });
+	};
+
+	/**
+	 * Differentiate with simpleDOM (old one) to generate DOM element
+	 * Assume they have the same owner
+	 * @param  {[SimpleDOM]} simpleDOM [description]
+	 * @return {[DOMElement]}           [description]
+	 */
+	SimpleDOM.prototype.toDOM = function (simpleDOM) {
+	  if (!simpleDOM || simpleDOM.tagName !== this.tagName) {
+	    // different tagName, need to create DOM element again
+	    this.element = document.createElement(this.tagName);
+
+	    // set content
+	    if (this.content) {
+	      this.element.appendChild(document.createTextNode(this.content));
+	    }
+
+	    // set attributes
+	    if (this.attributes) {
+	      for (var key in this.attributes) {
+	        var val = this.attributes[key];
+	        if (isNativeEvent(key)) {
+	          addEvent(this.element, key, val.bind(this.owner));
+	        } else if (key === 'ref') {
+	          this.owner.refs[val] = this.element;
+	        } else if (key === 'style' && val.constructor === Object) {
+	          for (var styleKey in val) {
+	            this.element.style[styleKey] = val[styleKey];
+	          }
+	        } else {
+	          this.element.setAttribute(key, val);
+	        }
+	      }
+	    }
+
+	    // append children
+	    this.appendNewChildren(this.children);
+
+	    return this.element;
+	  } else {
+	    var attributes = simpleDOM.attributes,
+	        content = simpleDOM.content,
+	        element = simpleDOM.element,
+	        children = simpleDOM.children;
+
+	    // update Content
+	    if (content) {
+	      var textNode = element.childNodes[0];
+	      textNode.innerText = this.content;
+	    } else {
+	      var _textNode = document.createTextNode(this.content);
+	      if (element.childNodes.length) {
+	        element.insertBefore(_textNode, element.childNodes[0]);
+	      } else {
+	        element.appendChild(_textNode);
+	      }
+	    }
+
+	    // update Attribute
+	    if (this.attributes) {
+	      for (var _key in this.attributes) {
+	        var _val = this.attributes[_key];
+	        if (isNativeEvent(_key)) {
+	          if (attributes.hasOwnProperty(_key)) {
+	            if (attributes[_key] === _val) {
+	              // same event
+	              continue;
+	            } else {
+	              // replace event
+	              removeEvent(element, _key, attributes[_key]);
+	              addEvent(element, _key, _val.bind(this.owner));
+	            }
+	          } else {
+	            addEvent(element, _key, _val.bind(this.owner));
+	          }
+	        } else if (_key === 'ref') {
+	          this.owner.refs[_val] = element;
+	        } else if (_key === 'style' && _val.constructor === Object) {
+	          // remove old inline style
+	          element.setAttribute('style', ''); // here might be wrong
+	          for (var _styleKey in _val) {
+	            element.style[_styleKey] = _val[_styleKey];
+	          }
+	        } else {
+	          element.setAttribute(_key, _val);
+	        }
+	      }
+	    }
+
+	    // update Children
+	    if (this.children.length === children.length) {
+	      for (var i = 0; i < children.length; i++) {
+	        this.children[i].toDOM(children[i]);
+	      }
+	    } else if (this.children.length > children.length) {
+	      var _i = 0;
+	      for (_i = 0; _i < children.length; _i++) {
+	        this.children[_i].toDOM(children[_i]);
+	      }
+
+	      this.appendNewChildren(this.children.slice(_i));
+	    } else {
+	      // if (this.children.length < children.length) {
+	      var _i2 = 0;
+	      for (_i2 = 0; _i2 < this.children.length; _i2++) {
+	        this.children[_i2].toDOM(children[_i2]);
+	      }
+
+	      // remove self from element
+	      for (; _i2 < children.length; _i2++) {
+	        childre[_i2].remove();
+	      }
+	    }
+
+	    // update element
+	    this.element = element;
+	    return this.element;
+	  }
+	};
+
+	module.exports = SimpleDOM;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var SimpleDOM = __webpack_require__(4);
+
+	var validTags = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section  select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
+
+	function SimpleBase() {
+	  this.simpleDOM = null;
 	  this.emitter = null;
 	  this.state = this.getInitialState();
 	  this.props = {};
 	  this.refs = {};
 	}
 
-	SimpleClass.prototype = {
-	  constructor: SimpleClass,
+	SimpleBase.prototype = {
+	  constructor: SimpleBase,
 	  getInitialState: function getInitialState() {
 	    return {};
 	  },
@@ -241,31 +334,33 @@
 	  },
 
 	  forceUpdate: function forceUpdate() {
-	    var element = this.render();
-	    if (this.element) {
-	      this.element.parentNode.replaceChild(element, this.element);
+	    var simpleDOM = this.render();
+	    if (this.simpleDOM) {
+	      // diff and update dom element
+	      simpleDOM.toDOM(this.simpleDOM);
 	    }
-	    this.element = element;
+	    this.simpleDOM = simpleDOM;
 	  },
 
 	  remove: function remove() {
-	    if (this.element) {
-	      this.element.parentNode.removeChild(this.element);
-	      this.element = null;
+	    if (this.simpleDOM) {
+	      this.simpleDOM.remove();
+	      this.simpleDOM = null;
 	    }
 	  },
 
 	  appendTo: function appendTo(obj) {
-	    if (!this.element) {
-	      this.element = this.render();
+	    if (!this.simpleDOM) {
+	      this.simpleDOM = this.render();
+	      this.simpleDOM.toDOM(null);
 	    }
 
-	    if (obj instanceof SimpleClass) {
-	      if (obj.element) {
-	        obj.element.appendChild(this.element);
+	    if (obj instanceof SimpleBase) {
+	      if (obj.simpleDOM) {
+	        obj.simpleDOM.appendChild(this.simpleDOM);
 	      }
 	    } else {
-	      obj.appendChild(this.element);
+	      obj.appendChild(this.simpleDOM.element);
 	    }
 	    return this;
 	  }
@@ -274,9 +369,30 @@
 	// add tags
 
 	var _loop = function _loop(i) {
-	  SimpleClass.prototype[validTags[i]] = function () {
-	    var args = arguments;
-	    return createDOMElement(validTags[i], args, this);
+	  SimpleBase.prototype[validTags[i]] = function () {
+	    var attributes = {},
+	        content = null,
+	        children = [];
+
+	    var offset = 0;
+	    if (typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === Object) {
+	      attributes = arguments[offset];
+	      offset += 1;
+	    }
+
+	    if (typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === String) {
+	      content = arguments[offset];
+	      offset += 1;
+	    }
+
+	    if (offset < arguments.length) children = Array.prototype.slice.call(arguments, offset);
+
+	    console.log('tag: ', validTags[i]);
+	    console.log('attributes: ', attributes);
+	    console.log('content: ', content);
+	    console.log('children: ', children);
+
+	    return new SimpleDOM(validTags[i], attributes, content, children, this);
 	  };
 	};
 
@@ -284,10 +400,7 @@
 	  _loop(i);
 	}
 
-	if (module) {
-	  module.exports = SimpleClass;
-	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+	module.exports = SimpleBase;
 
 /***/ }
 /******/ ]);
