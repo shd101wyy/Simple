@@ -46,7 +46,7 @@
 
 	'use strict';
 
-	var SimpleBase = __webpack_require__(5);
+	var SimpleBase = __webpack_require__(1);
 
 	function Simple(methods) {
 
@@ -68,7 +68,8 @@
 	    }*/
 
 	    this.init();
-	    this.forceUpdate();
+	    this.forceUpdate(); // render element
+	    this.componentDidMount();
 	  };
 
 	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
@@ -99,10 +100,130 @@
 	window.Simple = Simple;
 
 /***/ },
-/* 1 */,
-/* 2 */,
-/* 3 */,
-/* 4 */
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var SimpleDOM = __webpack_require__(2);
+
+	var validTags = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section  select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
+
+	// http://stackoverflow.com/questions/10865025/merge-flatten-a-multidimensional-array-in-javascript
+	function flatten(arr) {
+	  return arr.reduce(function (flat, toFlatten) {
+	    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+	  }, []);
+	}
+
+	/**
+	 * Derive from SimpleDOM class
+	 */
+	function SimpleBase() {
+	  SimpleDOM.call(this);
+	  this.emitter = null;
+	  this.state = this.getInitialState();
+	  this.props = this.getDefaultProps();
+	  this.refs = {};
+	}
+
+	SimpleBase.prototype = Object.create(SimpleDOM.prototype);
+
+	SimpleBase.prototype.getInitialState = function () {
+	  return {};
+	};
+
+	SimpleBase.prototype.getDefaultProps = function () {
+	  return {};
+	};
+
+	SimpleBase.prototype.render = function () {
+	  throw "Render function is not implemented";
+	};
+
+	SimpleBase.prototype.remove = function () {
+	  this.componentWillUnmount();
+
+	  Object.getPrototypeOf(SimpleBase.prototype).remove.call(this);
+
+	  this.componentDidUnmount();
+	};
+
+	SimpleBase.prototype.init = function () {};
+
+	SimpleBase.prototype.componentDidMount = function () {};
+
+	SimpleBase.prototype.componentWillUpdate = function () {};
+
+	SimpleBase.prototype.componentDidUpdate = function () {};
+
+	SimpleBase.prototype.componentWillUnmount = function () {};
+
+	SimpleBase.prototype.componentDidUnmount = function () {};
+
+	SimpleBase.prototype.setState = function (newState) {
+	  for (var key in newState) {
+	    this.state[key] = newState[key];
+	  }
+
+	  this.forceUpdate();
+	};
+
+	SimpleBase.prototype.forceUpdate = function () {
+	  this.componentWillUpdate();
+
+	  this.toDOM(this.render()); // render element
+
+	  this.componentDidUpdate();
+	};
+
+	SimpleBase.prototype.appendTo = function (obj) {
+	  if (obj instanceof SimpleDOM) {
+	    obj.appendChild(this);
+	  } else {
+	    obj.appendChild(this.element);
+	  }
+	  return this;
+	};
+
+	// add tags
+
+	var _loop = function _loop(i) {
+	  SimpleBase.prototype[validTags[i]] = function () {
+	    var attributes = {},
+	        content = null,
+	        children = [];
+
+	    var offset = 0;
+	    if (typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === Object) {
+	      attributes = arguments[offset];
+	      offset += 1;
+	    }
+
+	    if (typeof arguments[offset] !== 'undefined' && (arguments[offset].constructor === String || arguments[offset].constructor === Number)) {
+	      content = arguments[offset];
+	      offset += 1;
+	    }
+
+	    if (offset < arguments.length) {
+	      children = Array.prototype.slice.call(arguments, offset);
+	      children = [].concat.apply([], children);
+	    }
+
+	    return new SimpleDOM(validTags[i], attributes, content, children, this);
+	  };
+	};
+
+	for (var i = 0; i < validTags.length; i++) {
+	  _loop(i);
+	}
+
+	SimpleBase.prototype.constructor = SimpleBase;
+
+	module.exports = SimpleBase;
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -214,11 +335,11 @@
 	      this.owner = simpleDOM.owner;
 	    }
 
-	    this.element = document.createElement(this.tagName);
+	    var newElement = document.createElement(this.tagName);
 
 	    // set content
 	    if (this.content) {
-	      this.element.appendChild(document.createTextNode(this.content));
+	      newElement.appendChild(document.createTextNode(this.content));
 	    }
 
 	    // set attributes
@@ -226,22 +347,33 @@
 	      for (var key in this.attributes) {
 	        var val = this.attributes[key];
 	        if (isNativeEvent(key)) {
-	          addEvent(this.element, key, val /*.bind(this.owner)*/);
+	          addEvent(newElement, key, val /*.bind(this.owner)*/);
 	          this._eventListeners[key] = val; // save to _eventListeners
 	        } else if (key === 'ref') {
-	            this.owner.refs[val] = this.element;
+	            this.owner.refs[val] = newElement;
 	          } else if (key === 'style' && val.constructor === Object) {
 	            for (var styleKey in val) {
-	              this.element.style[styleKey] = val[styleKey];
+	              newElement.style[styleKey] = val[styleKey];
 	            }
 	          } else {
-	            this.element.setAttribute(key, val);
+	            newElement.setAttribute(key, val);
 	          }
 	      }
 	    }
 
 	    // append children
 	    this.appendChildrenDOMElements(this.children);
+
+	    if (this.element && simpleDOM) {
+	      // replace this.element with newElement
+	      var parentNode = this.element.parentNode; // this should/must exist
+	      parentNode.insertBefore(newElement, this.element);
+	      this.remove();
+
+	      this.element = newElement;
+	    } else {
+	      this.element = newElement;
+	    }
 
 	    return this.element;
 	  } else {
@@ -372,107 +504,6 @@
 	};
 
 	module.exports = SimpleDOM;
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var SimpleDOM = __webpack_require__(4);
-
-	var validTags = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section  select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
-
-	// http://stackoverflow.com/questions/10865025/merge-flatten-a-multidimensional-array-in-javascript
-	function flatten(arr) {
-	  return arr.reduce(function (flat, toFlatten) {
-	    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-	  }, []);
-	}
-
-	/**
-	 * Derive from SimpleDOM class
-	 */
-	function SimpleBase() {
-	  SimpleDOM.call(this);
-	  this.emitter = null;
-	  this.state = this.getInitialState();
-	  this.props = this.getDefaultProps();
-	  this.refs = {};
-	}
-
-	SimpleBase.prototype = Object.create(SimpleDOM.prototype);
-
-	SimpleBase.prototype.getInitialState = function () {
-	  return {};
-	};
-
-	SimpleBase.prototype.getDefaultProps = function () {
-	  return {};
-	};
-
-	SimpleBase.prototype.render = function () {
-	  throw "Render function is not implemented";
-	};
-
-	SimpleBase.prototype.init = function () {};
-
-	SimpleBase.prototype.setState = function (newState) {
-	  for (var key in newState) {
-	    this.state[key] = newState[key];
-	  }
-
-	  this.forceUpdate();
-	};
-
-	SimpleBase.prototype.forceUpdate = function () {
-	  this.toDOM(this.render());
-	};
-
-	SimpleBase.prototype.appendTo = function (obj) {
-	  if (obj instanceof SimpleDOM) {
-	    obj.appendChild(this);
-	  } else {
-	    obj.appendChild(this.element);
-	  }
-	  return this;
-	};
-
-	// add tags
-
-	var _loop = function _loop(i) {
-	  SimpleBase.prototype[validTags[i]] = function () {
-	    var attributes = {},
-	        content = null,
-	        children = [];
-
-	    var offset = 0;
-	    if (typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === Object) {
-	      attributes = arguments[offset];
-	      offset += 1;
-	    }
-
-	    if (typeof arguments[offset] !== 'undefined' && (arguments[offset].constructor === String || arguments[offset].constructor === Number)) {
-	      content = arguments[offset];
-	      offset += 1;
-	    }
-
-	    if (offset < arguments.length) {
-	      children = Array.prototype.slice.call(arguments, offset);
-	      children = [].concat.apply([], children);
-	    }
-
-	    return new SimpleDOM(validTags[i], attributes, content, children, this);
-	  };
-	};
-
-	for (var i = 0; i < validTags.length; i++) {
-	  _loop(i);
-	}
-
-	SimpleBase.prototype.constructor = SimpleBase;
-
-	module.exports = SimpleBase;
 
 /***/ }
 /******/ ]);
