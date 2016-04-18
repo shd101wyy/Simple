@@ -98,7 +98,7 @@ let EventComponent = Simple({
   state: {'count': 1},
   render: function() {
     return this.div(
-              this.p('The count is: ' + this.state.count),
+              this.p(this.state.count + ' seconds 🐸'),
               this.button({'click': this.onClick.bind(this)}, '+1s'))
   },
   onClick: function() {
@@ -107,3 +107,36 @@ let EventComponent = Simple({
   }
 })
 ```
+<img src="https://cloud.githubusercontent.com/assets/1908863/14619875/5093c6ac-057f-11e6-8f80-67f90a614115.gif" width=500>
+
+#### Embed Component
+We can use our defined **SimpleComponent** inside another **SimpleComponent**  
+For example:
+```javascript
+let TodoItem = Simple({
+  render: function() {
+    return this.div({style: {width: '400px', height: '16px', marginBottom: '6px'}},
+              this.props.todo)
+  }
+})
+
+let TodoList = Simple({
+  props: {title: 'No title defined'},
+  state: {data: ['Too young too simple', 'Sometimes native']},  // initial state
+  render: function() {
+    return this.div({class: 'todo-list'},
+              this.h2(this.props.title),
+              this.state.data.map(d => TodoItem({'todo': d})))
+  }
+})
+
+let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'})
+todoList.appendTo(document.getElementById('app'))
+```
+
+The rendered result is like   
+![screen shot 2016-04-18 at 4 15 23 pm](https://cloud.githubusercontent.com/assets/1908863/14620133/cd886b12-0580-11e6-9dee-039e966591ec.png)
+
+
+> MIT License  
+仅以此库祭奠我逝去的青春 eru pusai kongguruu

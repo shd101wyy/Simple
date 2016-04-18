@@ -11,11 +11,12 @@ let Demo = Simple({
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
 */
 
+/*
 let EventComponent = Simple({
   state: {'count': 1},
   render: function() {
     return this.div(
-              this.p('The count is: ' + this.state.count),
+              this.p(this.state.count + ' seconds 🐸'),
               this.button({'click': this.onClick.bind(this)}, '+1s'))
   },
   onClick: function() {
@@ -25,6 +26,28 @@ let EventComponent = Simple({
 })
 
 EventComponent().appendTo(document.getElementById('app'))
+*/
+/*
+let TodoItem = Simple({
+  render: function() {
+    return this.div({style: {width: '400px', height: '16px', marginBottom: '6px'}},
+              this.props.todo)
+  }
+})
+
+let TodoList = Simple({
+  props: {title: 'No title defined'},
+  state: {data: ['Too young too simple', 'Sometimes native']},  // initial state
+  render: function() {
+    return this.div({class: 'todo-list'},
+              this.h2(this.props.title),
+              this.state.data.map(d => TodoItem({'todo': d})))
+  }
+})
+
+let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'})
+todoList.appendTo(document.getElementById('app'))
+*/
 
 /*
 let Demo = Simple({
@@ -58,31 +81,30 @@ let Demo = Simple({
 Demo().appendTo(document.getElementById('app'))
 */
 
-/*
 let Demo = Simple({
   state: {count: 1},
   init: function() {
     this.onClick = this.onClick.bind(this)
   },
   render: function() {
-    return this.div(
-              this.p(this.state.count),
-              this.button({click: (this.state.count % 2 === 1 ? this.onClick.bind(this) : this.onClick2.bind(this)) }, '+1'))
+    if (this.state.count % 2 === 0) {
+      return this.div(
+                this.h1(this.state.count),
+                this.button({click: this.onClick.bind(this)}, '+1')
+      )
+    } else {
+      return this.div(
+                this.p(this.state.count),
+                this.button({click: this.onClick.bind(this) }, '+1'))
+    }
   },
   onClick: function() {
-    console.log('onClick 1')
-    let count = this.state.count + 1
-    this.setState({count: count})
-  },
-  onClick2: function() {
-    console.log('onClick 2')
-    let count = this.state.count + 1
-    this.setState({count: count})
+    let count = this.state.count
+    this.setState({count: count + 1})
   }
 })
 
 Demo().appendTo(document.getElementById('app'))
-*/
 
 /*
 let Demo = Simple({
