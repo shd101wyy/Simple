@@ -21,38 +21,40 @@ Core of **Simple** mainly consists of 3 parts:
 ```
 SimpleComponent <= SimpleBase <= SimpleDOM
 ```
-* **SimpleDOM**
-Low level prototype for DOM manipulation.  
-You can regard **SimpleDOM** as a kind of Virtual DOM, which improves DOM rendering speed.  
-Many native DOM element such as `div, button, p` are already wrapped by **SimpleDOM** for you
+* **SimpleDOM**  
+Low level abstraction for fast DOM manipulation.  
+You can regard **SimpleDOM** as a kind of Virtual DOM, which helps improve DOM rendering speed.  
+Many native DOM element such as `div, button, p` are already wrapped by **SimpleDOM** for you.
 
 * **SimpleBase**  
 Inherited from **SimpleDOM**, **SimpleBase** is a higher level abstraction.  
 It offers many basic prototype functions such as `getInitialState`, `getDefaultProps`, etc.  
 
 * **SimpleComponent**  
-Inherited from **SimpleBase**, **SimpleComponent** is highly user-defined and flexible.  
+Inherited from **SimpleBase**, **SimpleComponent** is user-defined and highly flexible.  
 
 #### SimpleComponent Lifecycle  
 1. `init()`  
-Called only once before the element is rendered. You should put all your initialization here  
+Called only once before the element is rendered. You should put all your initialization here.  
 
 2. `componentDidMount`  
-Called only once immediately after the element is rendered  
+Called only once immediately after the element is rendered.  
 
 3. `componentWillUpdate`  
-Called every time when `state` is updated by `setState`. This is not called for the initial render  
+Called every time when `state` is updated by `setState` or `forceUpdate` is called.   
+This is not called for the initial render.  
 
 4. `componentDidUpdate`  
-Called immediately after the element is done with updating rendering. This is not called for the initial render  
+Called immediately after the element is done with updating rendering.  
+This is not called for the initial render.  
 
 5. `componentWillUnmount`  
-Called right before the element is removed  
+Called right before the element is removed.  
 
 6. `componentDidUnmount`  
-Called after the element is removed  
+Called after the element is removed.  
 
-#### Create a SimpleComponent  
+#### Create your own SimpleComponent  
 ```javascript
 let MyComponent = Simple({            
     render: function() {               // render function has to be defined.
@@ -110,7 +112,7 @@ let EventComponent = Simple({
 ```
 <img src="https://cloud.githubusercontent.com/assets/1908863/14619875/5093c6ac-057f-11e6-8f80-67f90a614115.gif" width=500>
 
-#### Embed Component
+#### Embed Component inside another Component
 We can use our defined **SimpleComponent** inside another **SimpleComponent**  
 For example:
 ```javascript
@@ -135,9 +137,21 @@ let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'}
 todoList.appendTo(document.getElementById('app'))
 ```
 
-The rendered result is like   
+The rendered result is like below   
 ![screen shot 2016-04-18 at 4 15 23 pm](https://cloud.githubusercontent.com/assets/1908863/14620133/cd886b12-0580-11e6-9dee-039e966591ec.png)
 
+
+#### How to use this library
+I haven't published this library on `npmjs` yet since this library is still under development.  
+The only way to use this library right now is to download it and include the `Simple.js` file in `html` file.  
+
+```html
+<head>
+  <script src="blablabla/Simple.js"> </script>
+</head>
+```
+
+#### Thanks
 
 > MIT License  
 仅以此库祭奠我逝去的青春 eru pusai kongguruu
