@@ -3,27 +3,40 @@
 /*
 let Demo = Simple({
   render: function() {
-    return  this.div(this.props.message)
+    return  this.div({class: 'sample-div'}, this.props.message)
   }
 })
 
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
 */
 
+/*
+let Demo = Simple({
+  state: {message: 'hello'},
+  render: function() {
+    return  this.div({class: 'sample-div'}, this.state.message)
+  }
+})
+
+let demo = Demo().appendTo(document.getElementById('app'))
+demo.setState({message: 'world'})
+*/
+
+
 let Demo = Simple({
   state: {count: 1},
   render: function() {
     return this.div(
               this.p(this.state.count),
-              this.button({click: this.onClick}, '+1'))
+              this.button({click: this.onClick.bind(this)}, '+1'))
   },
-  onClick: function() {
-    let count = this.state.count
-    this.setState({count: count+1})
+  onClick: ()=> {
+    let count = this.state.count + 1
+    this.setState({count: count})
   }
 })
 
-let demo = Demo().appendTo(document.getElementById('app'))
+Demo().appendTo(document.getElementById('app'))
 
 /*
 let Demo = Simple({
@@ -44,10 +57,16 @@ let Demo = Simple({
 
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
 */
+
 /*
 let TodoItem = Simple({
   render: function() {
-    return this.div({class: 'todo-item'}, this.props.text)
+    return this.div({class: 'todo-item', key: this.props.key},
+              this.p(this.props.text),
+              this.button({click: this.deleteTodoItem}, 'x'))
+  },
+  deleteTodoItem: function() {
+    this.props.remove(this.props.key)
   }
 })
 
@@ -60,13 +79,8 @@ let Todo = Simple({
               this.div({class: 'todo-title'}, this.props.title),
               this.div({class: 'add-item-container'},
                 this.input({placeholder: 'add new item here', ref: 'inputBox'}),
-                this.button({click: this.clickAddItem.bind(this)}, 'Add Item')),
-
-              this.state.data.map(d => TodoItem({text: d}) ) )
-  },
-  onChange: function(e) {
-    console.log('change')
-    console.log(e.target.value)
+                this.button({click: this.clickAddItem}, 'Add Item')),
+              this.state.data.map((d, i) => TodoItem({text: d, 'key': i, remove: this.removeItem.bind(this) })))
   },
   clickAddItem: function() {
     this.addItem(this.refs.inputBox.value)
@@ -74,6 +88,12 @@ let Todo = Simple({
   addItem: function(item) {
     this.state.data.push(item)
     this.setState(this.state) // or this.forceUpdate
+    console.log(this.state.data)
+  },
+  removeItem: function(offset) {
+    let data = this.state.data
+    data.splice(offset, 1)
+    this.forceUpdate()
   }
 })
 
