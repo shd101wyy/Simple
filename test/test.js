@@ -1,14 +1,14 @@
 'use strict'
 
-/*
+
 let Demo = Simple({
+  props: {message: 'default message'},
   render: function() {
     return  this.div({class: 'sample-div'}, this.props.message)
   }
 })
 
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
-*/
 
 /*
 let Demo = Simple({

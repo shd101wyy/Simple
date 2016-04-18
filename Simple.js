@@ -55,7 +55,8 @@
 	      return new SimpleComponent(props);
 	    }
 	    SimpleBase.call(this);
-	    this.props = props || {};
+
+	    this.props = Object.assign(this.props, props) || {};
 
 	    this.init = this.init.bind(this); // bind self
 
@@ -77,6 +78,10 @@
 	    if (key === 'state') {
 	      SimpleComponent.prototype.getInitialState = function () {
 	        return Object.assign({}, methods.state);
+	      };
+	    } else if (key === 'props') {
+	      SimpleComponent.prototype.getDefaultProps = function () {
+	        return Object.assign({}, methods.props);
 	      };
 	    } else {
 	      SimpleComponent.prototype[key] = methods[key];
@@ -392,13 +397,17 @@
 	  SimpleDOM.call(this);
 	  this.emitter = null;
 	  this.state = this.getInitialState();
-	  this.props = {};
+	  this.props = this.getDefaultProps();
 	  this.refs = {};
 	}
 
 	SimpleBase.prototype = Object.create(SimpleDOM.prototype);
 
 	SimpleBase.prototype.getInitialState = function () {
+	  return {};
+	};
+
+	SimpleBase.prototype.getDefaultProps = function () {
 	  return {};
 	};
 
