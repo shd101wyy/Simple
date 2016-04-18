@@ -1,27 +1,15 @@
 ## Simple
-Simple is a very Simple front-end library by Yiyi Wang (shd101wyy)
-
 *under development*
 
+**Simple** is a very **Simple** front-end library created by Yiyi Wang (shd101wyy)
+The idea of this library is from [React](https://facebook.github.io/react/) and Atom Editor [space-pen](https://github.com/atom-archive/space-pen)
+
 ```javascript
-
-TodoItem = Simple({
-  getInitialState: ()=> {},
-  render: ()=> {
-    return this.div({class: 'todo-item'}, this.props.text)
+let Demo = Simple({
+  render: function() {
+    return  this.div(this.props.message)
   }
 })
 
-Todo = Simple({
-  getInitialState: ()=> {data: ['Hello', 'World']},
-  render: ()=> {
-    return this.div({class: 'todo'},
-              this.div({class: 'todo-title'}, 'TODO'),
-              this.state.data.map(d => TodoItem({text: d}))
-    )
-  }
-})
-
-Simple.render(Todo(), document.getElementById('app'))
-
+Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
 ```

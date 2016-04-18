@@ -55,20 +55,28 @@
 	    }
 	    SimpleClass.call(this);
 	    this.props = props || {};
+
+	    this.init();
 	  };
 
-	  SimpleObject.prototype = Object.assign(SimpleClass.prototype, methods);
+	  SimpleObject.prototype = Object.create(SimpleClass.prototype);
+
+	  for (var key in methods) {
+	    // if (methods.hasOwnProperty(key)) {
+	    if (key === 'state') {
+	      SimpleObject.prototype.getInitialState = function () {
+	        return Object.assign({}, methods.state);
+	      };
+	    } else {
+	      SimpleObject.prototype[key] = methods[key];
+	    }
+	    // }
+	  }
 
 	  SimpleObject.prototype.constructor = SimpleObject;
 
 	  return SimpleObject;
 	}
-
-	Simple.render = function (simpleObject, parent) {
-	  if (simpleObject && simpleObject.element) {
-	    parent.appendChild(simpleObject);
-	  }
-	};
 
 	if (module) {
 	  module.exports = Simple;
@@ -122,18 +130,20 @@
 	function appendChildren(element, children) {
 	  if (!children.length) return;
 
-	  for (var i = 0; i < children.length; i++) {
-	    var child = children[i];
+	  children.forEach(function (child) {
 	    if (child.constructor === Array) {
 	      appendChildren(element, child);
 	    } else {
 	      if (child instanceof SimpleClass) {
+	        if (!child.element) {
+	          child.element = child.render();
+	        }
 	        element.appendChild(child.element);
 	      } else {
 	        element.appendChild(child);
 	      }
 	    }
-	  }
+	  });
 	}
 
 	/**
@@ -144,29 +154,30 @@
 	 *        children
 	 * @return {[type]} [description]
 	 */
-	function createDOMElement(tagName, args) {
+	function createDOMElement(tagName, args, obj) {
 	  var attributes = null,
 	      content = null,
 	      children = [];
 
 	  var offset = 0;
-	  if (args[offset] && args[offset].constructor === Object) {
+	  if (typeof args[offset] !== 'undefined' && args[offset].constructor === Object) {
 	    attributes = args[offset];
 	    offset += 1;
 	  }
 
-	  if (args[offset] && args[offset].constructor === String) {
+	  if (typeof args[offset] !== 'undefined' && args[offset].constructor === String) {
 	    content = args[offset];
 	    offset += 1;
 	  }
 
-	  children = Array.prototype.slice.call(args, offset);
+	  if (offset < args.length) children = Array.prototype.slice.call(args, offset);
 
 	  /*
 	  console.log('tagName', tagName)
 	  console.log('attributes', attributes)
 	  console.log('content', content)
 	  console.log('children', children)
+	  console.log('args', args)
 	  */
 
 	  // create DOM
@@ -182,7 +193,9 @@
 	    for (var key in attributes) {
 	      var val = attributes[key];
 	      if (isNativeEvent(key)) {
-	        addEvent(dom, key, val);
+	        addEvent(dom, key, val.bind(obj));
+	      } else if (key === 'ref') {
+	        obj.refs[val] = dom;
 	      } else {
 	        dom.setAttribute(key, val);
 	      }
@@ -199,7 +212,8 @@
 	  this.element = null;
 	  this.emitter = null;
 	  this.state = this.getInitialState();
-	  this.props = null;
+	  this.props = {};
+	  this.refs = {};
 	}
 
 	SimpleClass.prototype = {
@@ -210,6 +224,8 @@
 	  render: function render() {
 	    throw "Render function is not implemented";
 	  },
+
+	  init: function init() {},
 
 	  setState: function setState(newState) {
 	    // copy state and then rerender dom element
@@ -223,14 +239,14 @@
 	  forceUpdate: function forceUpdate() {
 	    var element = this.render();
 	    if (this.element) {
-	      this.element.parentNode.replaceChild(this.element, element);
+	      this.element.parentNode.replaceChild(element, this.element);
 	    }
 	    this.element = element;
 	  },
 
 	  remove: function remove() {
 	    if (this.element) {
-	      this.element.parentElement.removeChild(this.element);
+	      this.element.parentNode.removeChild(this.element);
 	      this.element = null;
 	    }
 	  },
@@ -247,6 +263,7 @@
 	    } else {
 	      obj.appendChild(this.element);
 	    }
+	    return this;
 	  }
 	};
 
@@ -254,7 +271,8 @@
 
 	var _loop = function _loop(i) {
 	  SimpleClass.prototype[validTags[i]] = function () {
-	    return createDOMElement(validTags[i], arguments);
+	    var args = arguments;
+	    return createDOMElement(validTags[i], args, this);
 	  };
 	};
 
