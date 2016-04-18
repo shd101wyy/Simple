@@ -327,30 +327,28 @@
 	SimpleDOM.prototype.toDOM = function (simpleDOM) {
 	  if (!this.element || simpleDOM.tagName !== this.tagName) {
 	    // element not existed [OR] different tagName, need to create DOM element again
-	    if (simpleDOM) {
-	      this.tagName = simpleDOM.tagName;
-	      this.attributes = simpleDOM.attributes;
-	      this.content = simpleDOM.content;
-	      this.children = simpleDOM.children;
-	      this.owner = simpleDOM.owner;
-	    }
+	    var newTagName = simpleDOM ? simpleDOM.tagName : this.tagName,
+	        newAttributes = simpleDOM ? simpleDOM.attributes : this.attributes,
+	        newContent = simpleDOM ? simpleDOM.content : this.content,
+	        newChildren = simpleDOM ? simpleDOM.children : this.children,
+	        newOwner = simpleDOM ? simpleDOM.owner : this.owner;
 
-	    var newElement = document.createElement(this.tagName);
+	    var newElement = document.createElement(newTagName);
 
 	    // set content
-	    if (this.content) {
-	      newElement.appendChild(document.createTextNode(this.content));
+	    if (newContent) {
+	      newElement.appendChild(document.createTextNode(newContent));
 	    }
 
 	    // set attributes
-	    if (this.attributes) {
-	      for (var key in this.attributes) {
-	        var val = this.attributes[key];
+	    if (newAttributes) {
+	      for (var key in newAttributes) {
+	        var val = newAttributes[key];
 	        if (isNativeEvent(key)) {
 	          addEvent(newElement, key, val /*.bind(this.owner)*/);
 	          this._eventListeners[key] = val; // save to _eventListeners
 	        } else if (key === 'ref') {
-	            this.owner.refs[val] = newElement;
+	            newOwner.refs[val] = newElement;
 	          } else if (key === 'style' && val.constructor === Object) {
 	            for (var styleKey in val) {
 	              newElement.style[styleKey] = val[styleKey];
@@ -368,9 +366,20 @@
 	      this.remove();
 
 	      this.element = newElement;
+
+	      if (this.props && simpleDOM.props) {
+	        this.props = simpleDOM.props;
+	        this.state = simpleDOM.state;
+	      }
 	    } else {
 	      this.element = newElement;
 	    }
+
+	    this.tagName = newTagName;
+	    this.attributes = newAttributes;
+	    this.content = newContent;
+	    this.children = newChildren;
+	    this.owner = newOwner;
 
 	    // append children
 	    this.appendChildrenDOMElements(this.children);
@@ -482,14 +491,12 @@
 	      this.appendChildrenDOMElements(children.slice(j));
 	    } else {
 	      // if (children.length < oldChildren.length) {
-	      var _i2 = 0;
-	      for (_i2 = 0; _i2 < children.length; _i2++) {
-	        oldChildren[_i2].toDOM(children[_i2]);
+	      for (var _i2 = children.length; _i2 < oldChildren.length; _i2++) {
+	        oldChildren.pop().remove();
 	      }
 
-	      // remove self from element
-	      for (; _i2 < oldChildren.length; _i2++) {
-	        oldChildren.pop().remove();
+	      for (var _i3 = 0; _i3 < children.length; _i3++) {
+	        oldChildren[_i3].toDOM(children[_i3]);
 	      }
 	    }
 
@@ -497,6 +504,11 @@
 	    this.content = content;
 	    // this.children = children // This is wrong. Should assign like this as this.children already changed.
 	    this.owner = owner;
+
+	    if (this.props && simpleDOM.props) {
+	      this.props = simpleDOM.props;
+	      this.state = simpleDOM.state;
+	    }
 
 	    // update element
 	    return this.element;

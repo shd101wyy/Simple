@@ -80,7 +80,7 @@ let Demo = Simple({
 
 Demo().appendTo(document.getElementById('app'))
 */
-
+/*
 let Demo = Simple({
   state: {count: 1},
   init: function() {
@@ -105,7 +105,7 @@ let Demo = Simple({
 })
 
 Demo().appendTo(document.getElementById('app'))
-
+*/
 /*
 let Demo = Simple({
   state: {text: ''},
@@ -126,25 +126,27 @@ let Demo = Simple({
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
 */
 
-/*
+
 let TodoItem = Simple({
   render: function() {
-    return this.div({class: 'todo-item', key: this.props.key},
-              this.p(this.props.text),
+    return this.div({class: 'todo-item', style: 'clear: both; padding: 12px;', key: this.props.key},
+              this.p({style: 'float: left; margin: 0 24px 0 0; margin-right: 24px;' }, this.props.text),
               this.button({click: this.deleteTodoItem.bind(this)}, 'x'))
   },
   deleteTodoItem: function() {
     this.props.remove(this.props.key)
+  },
+  componentWillUnmount: function() {
+    let x = this.props.text
+    console.log(x)
   }
 })
 
 let Todo = Simple({
   state: {data: ['TODO Item 1', 'TODO Item 2']},
-  init: function() {
-  },
   render: function() {
     return this.div({class: 'todo'},
-              this.div({class: 'todo-title'}, this.props.title),
+              this.h2({class: 'todo-title'}, this.props.title),
               this.div({class: 'add-item-container'},
                 this.input({placeholder: 'add new item here', ref: 'inputBox'}),
                 this.button({click: this.clickAddItem.bind(this)}, 'Add Item')),
@@ -156,7 +158,6 @@ let Todo = Simple({
   addItem: function(item) {
     this.state.data.push(item)
     this.setState(this.state) // or this.forceUpdate
-    console.log(this.state.data)
   },
   removeItem: function(offset) {
     let data = this.state.data
@@ -166,4 +167,3 @@ let Todo = Simple({
 })
 
 let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
-*/
