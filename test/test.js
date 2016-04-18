@@ -67,13 +67,14 @@ let Demo = Simple({
 
 Demo().appendTo(document.getElementById('app'))
 */
+
 /*
 let Demo = Simple({
   state: {text: ''},
   render: function() {
     return  this.div(
               this.h4(this.props.title),
-              this.input({input: this.onChangeInput,
+              this.input({input: this.onChangeInput.bind(this),
                           placeholder: 'enter your text here',
                           value: this.state.text}),
               this.p(this.state.text))
@@ -92,7 +93,7 @@ let TodoItem = Simple({
   render: function() {
     return this.div({class: 'todo-item', key: this.props.key},
               this.p(this.props.text),
-              this.button({click: this.deleteTodoItem}, 'x'))
+              this.button({click: this.deleteTodoItem.bind(this)}, 'x'))
   },
   deleteTodoItem: function() {
     this.props.remove(this.props.key)
@@ -108,7 +109,7 @@ let Todo = Simple({
               this.div({class: 'todo-title'}, this.props.title),
               this.div({class: 'add-item-container'},
                 this.input({placeholder: 'add new item here', ref: 'inputBox'}),
-                this.button({click: this.clickAddItem}, 'Add Item')),
+                this.button({click: this.clickAddItem.bind(this)}, 'Add Item')),
               this.state.data.map((d, i) => TodoItem({text: d, 'key': i, remove: this.removeItem.bind(this) })))
   },
   clickAddItem: function() {
