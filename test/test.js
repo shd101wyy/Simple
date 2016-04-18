@@ -1,5 +1,6 @@
 'use strict'
 
+/*
 let Demo = Simple({
   render: function() {
     return  this.div(this.props.message)
@@ -7,6 +8,22 @@ let Demo = Simple({
 })
 
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
+*/
+
+let Demo = Simple({
+  state: {count: 1},
+  render: function() {
+    return this.div(
+              this.p(this.state.count),
+              this.button({click: this.onClick}, '+1'))
+  },
+  onClick: function() {
+    let count = this.state.count
+    this.setState({count: count+1})
+  }
+})
+
+let demo = Demo().appendTo(document.getElementById('app'))
 
 /*
 let Demo = Simple({

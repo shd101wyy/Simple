@@ -220,14 +220,19 @@
 
 	    // update Content
 	    if (content) {
-	      var textNode = element.childNodes[0];
-	      textNode.innerText = this.content;
-	    } else {
-	      var _textNode = document.createTextNode(this.content);
-	      if (element.childNodes.length) {
-	        element.insertBefore(_textNode, element.childNodes[0]);
+	      if (this.content) {
+	        var textNode = element.childNodes[0];
+	        textNode.nodeValue = this.content;
 	      } else {
-	        element.appendChild(_textNode);
+	        var _textNode = element.childNodes[0];
+	        element.removeChild(_textNode);
+	      }
+	    } else if (this.content) {
+	      var _textNode2 = document.createTextNode(this.content);
+	      if (element.childNodes.length) {
+	        element.insertBefore(_textNode2, element.childNodes[0]);
+	      } else {
+	        element.appendChild(_textNode2);
 	      }
 	    }
 
@@ -258,6 +263,15 @@
 	          }
 	        } else {
 	          element.setAttribute(_key, _val);
+	        }
+	      }
+	    }
+
+	    // remove old attributes that are existed in the new one
+	    if (attributes && this.attributes) {
+	      for (var _key2 in attributes) {
+	        if (!this.attributes.hasOwnProperty(_key2)) {
+	          element.removeAttribute(_key2);
 	        }
 	      }
 	    }
@@ -363,6 +377,13 @@
 	      obj.appendChild(this.simpleDOM.element);
 	    }
 	    return this;
+	  },
+	  getElement: function getElement() {
+	    if (this.simpleDOM) {
+	      return this.simpleDOM.element;
+	    } else {
+	      return null;
+	    }
 	  }
 	};
 
@@ -380,17 +401,19 @@
 	      offset += 1;
 	    }
 
-	    if (typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === String) {
+	    if (typeof arguments[offset] !== 'undefined' && (arguments[offset].constructor === String || arguments[offset].constructor === Number)) {
 	      content = arguments[offset];
 	      offset += 1;
 	    }
 
 	    if (offset < arguments.length) children = Array.prototype.slice.call(arguments, offset);
 
-	    console.log('tag: ', validTags[i]);
-	    console.log('attributes: ', attributes);
-	    console.log('content: ', content);
-	    console.log('children: ', children);
+	    /*
+	    console.log('tag: ', validTags[i])
+	    console.log('attributes: ', attributes)
+	    console.log('content: ', content)
+	    console.log('children: ', children)
+	    */
 
 	    return new SimpleDOM(validTags[i], attributes, content, children, this);
 	  };
