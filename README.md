@@ -2,7 +2,8 @@
 *under development. API might change*
 
 #### Introduction
-**Simple** is a very **Simple** front-end library created by Yiyi Wang (shd101wyy)
+**Simple** is a very **Simple** front-end library created by Yiyi Wang (shd101wyy)  
+It is extremely small and blazingly fast.  
 The idea of this library is from [React](https://facebook.github.io/react/) and Atom Editor [space-pen](https://github.com/atom-archive/space-pen)
 
 ```javascript
