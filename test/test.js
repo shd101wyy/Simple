@@ -126,10 +126,10 @@ let Demo = Simple({
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
 */
 
-
+/*
 let TodoItem = Simple({
   render: function() {
-    return this.div({class: 'todo-item', style: 'clear: both; padding: 12px;', key: this.props.key},
+    return this.div({style: 'clear: both; padding: 12px;', key: this.props.key},
               this.p({style: 'float: left; margin: 0 24px 0 0; margin-right: 24px;' }, this.props.text),
               this.button({click: this.deleteTodoItem.bind(this)}, 'x'))
   },
@@ -167,3 +167,37 @@ let Todo = Simple({
 })
 
 let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
+*/
+
+
+let TodoList = Simple({
+  render: function() {
+    let createItem = (item)=> {
+      return this.li( item.text)
+    }
+    return this.ul(this.props.items.map(createItem))
+  }
+})
+
+let TodoApp = Simple({
+  state: {items: [], text: ''},
+  onInput: function(e) {
+    this.setState({text: e.target.value})
+  },
+  handleSubmit: function(e) {
+    e.preventDefault()
+    let nextItems = this.state.items.concat([{text: this.state.text, id: Date.now()}]);
+    let nextText = '';
+    this.setState({items: nextItems, text: nextText});
+  },
+  render: function() {
+    return this.div(
+            this.h3('TODO '),
+            TodoList({items: this.state.items}),
+            this.form({submit: this.handleSubmit.bind(this)},
+              this.input({input: this.onInput.bind(this), value: this.state.text}),
+              this.button(`Add #${this.state.items.length + 1}`)))
+  }
+})
+
+TodoApp().appendTo(document.getElementById('app'))

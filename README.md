@@ -141,6 +141,43 @@ The rendered result is like below
 ![screen shot 2016-04-18 at 4 15 23 pm](https://cloud.githubusercontent.com/assets/1908863/14620133/cd886b12-0580-11e6-9dee-039e966591ec.png)
 
 
+#### Todo List Example
+The **Todo List** code sample is referred from [React](https://facebook.github.io/react/) website but written by **Simple** library.
+```javascript
+// Todo List example written by Simple
+let TodoList = Simple({
+  render: function() {
+    let createItem = (item)=> {
+      return this.li(item.text)
+    }
+    return this.ul(this.props.items.map(createItem))
+  }
+})
+
+let TodoApp = Simple({
+  state: {items: [], text: ''},
+  onInput: function(e) {
+    this.setState({text: e.target.value})
+  },
+  handleSubmit: function(e) {
+    e.preventDefault()
+    let nextItems = this.state.items.concat([{text: this.state.text, id: Date.now()}]);
+    let nextText = '';
+    this.setState({items: nextItems, text: nextText});
+  },
+  render: function() {
+    return this.div(
+            this.h3('TODO '),
+            TodoList({items: this.state.items}),
+            this.form({submit: this.handleSubmit.bind(this)},
+              this.input({input: this.onInput.bind(this), value: this.state.text}),
+              this.button(`Add #${this.state.items.length + 1}`)))
+  }
+})
+
+TodoApp().appendTo(document.getElementById('app'))
+```
+
 #### How to use this library
 I haven't published this library on `npmjs` yet since this library is still under development.  
 The only way to use this library right now is to download it and include the `Simple.js` file in `html` file.  
