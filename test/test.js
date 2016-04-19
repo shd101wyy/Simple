@@ -1,5 +1,11 @@
 'use strict'
+/*
+let Greetings = Simple(function(name) {
+  return this.div(`Hello ${name}!`)
+})
 
+Greetings('Sexy Aaron').appendTo(document.body)
+*/
 /*
 let Demo = Simple({
   props: {message: 'default message'},
@@ -10,10 +16,11 @@ let Demo = Simple({
 
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
 */
-
 /*
 let EventComponent = Simple({
-  state: {'count': 1},
+  init: function() {
+    this.state = {count: 1}
+  },
   render: function() {
     return this.div(
               this.p(this.state.count + ' seconds 🐸'),
@@ -25,8 +32,9 @@ let EventComponent = Simple({
   }
 })
 
-EventComponent().appendTo(document.getElementById('app'))
+EventComponent().appendTo(document.body)
 */
+
 /*
 let TodoItem = Simple({
   render: function() {
@@ -169,7 +177,7 @@ let Todo = Simple({
 let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
 */
 
-
+/*
 let TodoList = Simple({
   render: function() {
     let createItem = (item)=> {
@@ -201,3 +209,4 @@ let TodoApp = Simple({
 })
 
 TodoApp().appendTo(document.getElementById('app'))
+*/

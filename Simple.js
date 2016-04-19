@@ -47,25 +47,18 @@
 	'use strict';
 
 	var SimpleBase = __webpack_require__(1);
+	var Emitter = __webpack_require__(3);
 
-	function Simple(methods) {
-
+	function createSimpleComponent(methods) {
 	  var SimpleComponent = function SimpleComponent(props) {
 	    if (!this || !(this instanceof SimpleComponent)) {
 	      return new SimpleComponent(props);
 	    }
 	    SimpleBase.call(this);
 
-	    this.props = Object.assign(this.props, props) || {};
-
-	    this.init = this.init.bind(this); // bind self
-
-	    /*
-	    for (let key in this.__proto__) { // autobind
-	      if (this.__proto__.hasOwnProperty(key) && !this.__proto__.__proto__[key]) {
-	        this[key] = this.__proto__[key].bind(this)
-	      }
-	    }*/
+	    if (props) {
+	      Object.assign(this.props, props);
+	    }
 
 	    this.init();
 	    this.forceUpdate(); // render element
@@ -75,19 +68,7 @@
 	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
 
 	  for (var key in methods) {
-	    // if (methods.hasOwnProperty(key)) {
-	    if (key === 'state') {
-	      SimpleComponent.prototype.getInitialState = function () {
-	        return Object.assign({}, methods.state);
-	      };
-	    } else if (key === 'props') {
-	      SimpleComponent.prototype.getDefaultProps = function () {
-	        return Object.assign({}, methods.props);
-	      };
-	    } else {
-	      SimpleComponent.prototype[key] = methods[key];
-	    }
-	    // }
+	    SimpleComponent.prototype[key] = methods[key];
 	  }
 
 	  SimpleComponent.prototype.constructor = SimpleComponent;
@@ -95,9 +76,35 @@
 	  return SimpleComponent;
 	}
 
-	module.exports = Simple;
+	function createStatelessSimpleComponent(func) {
+	  var SimpleComponent = function SimpleComponent(props) {
+	    if (!this || !this instanceof SimpleComponent) {
+	      return new SimpleComponent(props);
+	    }
+	    SimpleBase.call(this);
+
+	    this.toDOM(func.call(this, props)); // render element
+	  };
+	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
+
+	  return SimpleComponent;
+	}
+
+	function Simple(arg) {
+	  if (arg.constructor === Function) {
+	    return createStatelessSimpleComponent(arg);
+	  } else {
+	    return createSimpleComponent(arg);
+	  }
+	}
+
+	module.exports = {
+	  Simple: Simple,
+	  Emitter: Emitter
+	};
 
 	window.Simple = Simple;
+	window.Emitter = Emitter;
 
 /***/ },
 /* 1 */
@@ -122,16 +129,11 @@
 	function SimpleBase() {
 	  SimpleDOM.call(this);
 	  this.emitter = null;
-	  this.state = this.getInitialState();
 	  this.props = this.getDefaultProps();
 	  this.refs = {};
 	}
 
 	SimpleBase.prototype = Object.create(SimpleDOM.prototype);
-
-	SimpleBase.prototype.getInitialState = function () {
-	  return {};
-	};
 
 	SimpleBase.prototype.getDefaultProps = function () {
 	  return {};
@@ -516,6 +518,23 @@
 	};
 
 	module.exports = SimpleDOM;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	'use strict';
+	/*
+	 * Event emitter class
+	 */
+
+	function Emitter() {}
+
+	Emitter.prototype.emit = function () {};
+
+	Emitter.prototype.on = function () {};
+
+	module.exports = Emitter;
 
 /***/ }
 /******/ ]);
