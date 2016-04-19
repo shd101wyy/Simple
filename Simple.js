@@ -493,7 +493,8 @@
 	      this.appendChildrenDOMElements(children.slice(j));
 	    } else {
 	      // if (children.length < oldChildren.length) {
-	      for (var _i2 = children.length; _i2 < oldChildren.length; _i2++) {
+	      var oldLength = oldChildren.length;
+	      for (var _i2 = children.length; _i2 < oldLength; _i2++) {
 	        oldChildren.pop().remove();
 	      }
 

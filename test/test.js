@@ -210,3 +210,29 @@ let TodoApp = Simple({
 
 TodoApp().appendTo(document.getElementById('app'))
 */
+
+let PressureTest = Simple({
+  init: function() {
+    this.state = {count: 1000}
+  },
+  render: function() {
+    let divs = []
+    for (let i = 0; i < this.state.count; i++) {
+      divs.push(this.div(i))
+    }
+    return this.div(
+              divs)
+  }
+})
+
+
+let pressureTest = PressureTest().appendTo(document.getElementById('app'))
+pressureTest.setState({count: 20000})
+/*
+setTimeout(()=> {
+  pressureTest.setState({count: 100})
+}, 2000)
+*/
+pressureTest.setState({count: 100})
+pressureTest.setState({count: 30000})
+pressureTest.setState({count: 500})
