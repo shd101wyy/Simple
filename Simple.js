@@ -46,15 +46,27 @@
 
 	'use strict';
 
-	var SimpleBase = __webpack_require__(1);
-	var Emitter = __webpack_require__(3);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Emitter = exports.Simple = undefined;
+
+	var _SimpleBase = __webpack_require__(1);
+
+	var _SimpleBase2 = _interopRequireDefault(_SimpleBase);
+
+	var _Emitter = __webpack_require__(3);
+
+	var _Emitter2 = _interopRequireDefault(_Emitter);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function createSimpleComponent(methods) {
 	  var SimpleComponent = function SimpleComponent(props) {
 	    if (!this || !(this instanceof SimpleComponent)) {
 	      return new SimpleComponent(props);
 	    }
-	    SimpleBase.call(this);
+	    _SimpleBase2.default.call(this);
 
 	    if (props) {
 	      Object.assign(this.props, props);
@@ -65,7 +77,7 @@
 	    this.componentDidMount();
 	  };
 
-	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
+	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
 
 	  for (var key in methods) {
 	    SimpleComponent.prototype[key] = methods[key];
@@ -81,11 +93,11 @@
 	    if (!this || !this instanceof SimpleComponent) {
 	      return new SimpleComponent(props);
 	    }
-	    SimpleBase.call(this);
+	    _SimpleBase2.default.call(this);
 
 	    this.toDOM(func.call(this, props)); // render element
 	  };
-	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
+	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
 
 	  return SimpleComponent;
 	}
@@ -98,13 +110,11 @@
 	  }
 	}
 
-	module.exports = {
-	  Simple: Simple,
-	  Emitter: Emitter
-	};
-
 	window.Simple = Simple;
-	window.Emitter = Emitter;
+	window.Emitter = _Emitter2.default;
+
+	exports.Simple = Simple;
+	exports.Emitter = _Emitter2.default;
 
 /***/ },
 /* 1 */
@@ -112,7 +122,15 @@
 
 	'use strict';
 
-	var SimpleDOM = __webpack_require__(2);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _SimpleDOM = __webpack_require__(2);
+
+	var _SimpleDOM2 = _interopRequireDefault(_SimpleDOM);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var validTags = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section  select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
 
@@ -127,13 +145,13 @@
 	 * Derive from SimpleDOM class
 	 */
 	function SimpleBase() {
-	  SimpleDOM.call(this);
+	  _SimpleDOM2.default.call(this);
 	  this.emitter = null;
 	  this.props = this.getDefaultProps();
 	  this.refs = {};
 	}
 
-	SimpleBase.prototype = Object.create(SimpleDOM.prototype);
+	SimpleBase.prototype = Object.create(_SimpleDOM2.default.prototype);
 
 	SimpleBase.prototype.getDefaultProps = function () {
 	  return {};
@@ -180,7 +198,7 @@
 	};
 
 	SimpleBase.prototype.appendTo = function (obj) {
-	  if (obj instanceof SimpleDOM) {
+	  if (obj instanceof _SimpleDOM2.default) {
 	    obj.appendChild(this);
 	  } else {
 	    obj.appendChild(this.element);
@@ -212,7 +230,7 @@
 	      children = [].concat.apply([], children);
 	    }
 
-	    return new SimpleDOM(validTags[i], attributes, content, children, this);
+	    return new _SimpleDOM2.default(validTags[i], attributes, content, children, this);
 	  };
 	};
 
@@ -222,7 +240,7 @@
 
 	SimpleBase.prototype.constructor = SimpleBase;
 
-	module.exports = SimpleBase;
+	exports.default = SimpleBase;
 
 /***/ },
 /* 2 */
@@ -231,6 +249,9 @@
 	'use strict';
 	// A kind of Virtual DOM written by Yiyi Wang (shd101wyy)
 
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	function isNativeEvent(eventname) {
 	  return typeof document.body["on" + eventname] !== "undefined";
 	}
@@ -518,7 +539,7 @@
 	  }
 	};
 
-	module.exports = SimpleDOM;
+	exports.default = SimpleDOM;
 
 /***/ },
 /* 3 */
@@ -529,13 +550,16 @@
 	 * Event emitter class
 	 */
 
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	function Emitter() {}
 
 	Emitter.prototype.emit = function () {};
 
 	Emitter.prototype.on = function () {};
 
-	module.exports = Emitter;
+	exports.default = Emitter;
 
 /***/ }
 /******/ ]);
