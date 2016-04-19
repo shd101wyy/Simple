@@ -1,4 +1,24 @@
-## Simple
+
+<!-- toc -->
+
+- [Simple](#simple)
+	- [Introduction](#introduction)
+	- [How *Simple* Works](#how-simple-works)
+	- [SimpleComponent Lifecycle](#simplecomponent-lifecycle)
+	- [Use wrapped native DOM elements](#use-wrapped-native-dom-elements)
+	- [Create your own SimpleComponent](#create-your-own-simplecomponent)
+	- [Create Stateless Component](#create-stateless-component)
+	- [Bind Event for Component](#bind-event-for-component)
+	- [Embed Component inside another Component](#embed-component-inside-another-component)
+	- [Todo List Example](#todo-list-example)
+	- [Emitter (not implemented experimental feature)](#emitter-not-implemented-experimental-feature)
+	- [How to use this library](#how-to-use-this-library)
+	- [Thanks](#thanks)
+
+<!-- tocstop -->
+
+
+### Simple
 *under development. API might change*
 
 #### Introduction
