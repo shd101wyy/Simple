@@ -49,12 +49,13 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.Component = exports.Emitter = undefined;
 
-	var _Component = __webpack_require__(4);
+	var _Component = __webpack_require__(1);
 
 	var _Component2 = _interopRequireDefault(_Component);
 
-	var _Emitter = __webpack_require__(3);
+	var _Emitter = __webpack_require__(4);
 
 	var _Emitter2 = _interopRequireDefault(_Emitter);
 
@@ -70,6 +71,8 @@
 	}
 
 	exports.default = Simple;
+	exports.Emitter = _Emitter2.default;
+	exports.Component = _Component2.default;
 
 /***/ },
 /* 1 */
@@ -81,7 +84,82 @@
 	  value: true
 	});
 
-	var _SimpleDOM = __webpack_require__(2);
+	var _SimpleBase = __webpack_require__(2);
+
+	var _SimpleBase2 = _interopRequireDefault(_SimpleBase);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function createSimpleComponent(methods) {
+	  var SimpleComponent = function SimpleComponent(props) {
+	    if (!this || !(this instanceof SimpleComponent)) {
+	      return new SimpleComponent(props);
+	    }
+	    _SimpleBase2.default.call(this);
+
+	    for (var _len = arguments.length, children = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	      children[_key - 1] = arguments[_key];
+	    }
+
+	    if (children) {
+	      this.children = children;
+	    }
+
+	    if (props) {
+	      Object.assign(this.props, props);
+	    }
+
+	    this.init();
+	    this.forceUpdate(); // render element
+	    this.componentDidMount();
+	  };
+
+	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
+
+	  for (var key in methods) {
+	    SimpleComponent.prototype[key] = methods[key];
+	  }
+
+	  SimpleComponent.prototype.constructor = SimpleComponent;
+
+	  return SimpleComponent;
+	}
+
+	function createStatelessSimpleComponent(func) {
+	  var SimpleComponent = function SimpleComponent(props) {
+	    if (!this || !this instanceof SimpleComponent) {
+	      return new SimpleComponent(props);
+	    }
+	    _SimpleBase2.default.call(this);
+
+	    this.toDOM(func.call(this, props)); // render element
+	  };
+	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
+
+	  return SimpleComponent;
+	}
+
+	function Component(arg) {
+	  if (arg.constructor === Function) {
+	    return createStatelessSimpleComponent(arg);
+	  } else {
+	    return createSimpleComponent(arg);
+	  }
+	}
+
+	exports.default = Component;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _SimpleDOM = __webpack_require__(3);
 
 	var _SimpleDOM2 = _interopRequireDefault(_SimpleDOM);
 
@@ -232,7 +310,7 @@
 	exports.default = SimpleBase;
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -531,7 +609,7 @@
 	exports.default = SimpleDOM;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -595,6 +673,11 @@
 	  }
 	};
 
+	// unsubscript the event
+	Emitter.prototype.off = function (name) {
+	  this.subscriptions[name] = null;
+	};
+
 	Emitter.prototype.destroy = function () {
 	  this.state = {};
 	  this.subscriptions = {};
@@ -605,81 +688,6 @@
 	};
 
 	exports.default = Emitter;
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _SimpleBase = __webpack_require__(1);
-
-	var _SimpleBase2 = _interopRequireDefault(_SimpleBase);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function createSimpleComponent(methods) {
-	  var SimpleComponent = function SimpleComponent(props) {
-	    if (!this || !(this instanceof SimpleComponent)) {
-	      return new SimpleComponent(props);
-	    }
-	    _SimpleBase2.default.call(this);
-
-	    for (var _len = arguments.length, children = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	      children[_key - 1] = arguments[_key];
-	    }
-
-	    if (children) {
-	      this.children = children;
-	    }
-
-	    if (props) {
-	      Object.assign(this.props, props);
-	    }
-
-	    this.init();
-	    this.forceUpdate(); // render element
-	    this.componentDidMount();
-	  };
-
-	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
-
-	  for (var key in methods) {
-	    SimpleComponent.prototype[key] = methods[key];
-	  }
-
-	  SimpleComponent.prototype.constructor = SimpleComponent;
-
-	  return SimpleComponent;
-	}
-
-	function createStatelessSimpleComponent(func) {
-	  var SimpleComponent = function SimpleComponent(props) {
-	    if (!this || !this instanceof SimpleComponent) {
-	      return new SimpleComponent(props);
-	    }
-	    _SimpleBase2.default.call(this);
-
-	    this.toDOM(func.call(this, props)); // render element
-	  };
-	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
-
-	  return SimpleComponent;
-	}
-
-	function Component(arg) {
-	  if (arg.constructor === Function) {
-	    return createStatelessSimpleComponent(arg);
-	  } else {
-	    return createSimpleComponent(arg);
-	  }
-	}
-
-	exports.default = Component;
 
 /***/ }
 /******/ ]);
