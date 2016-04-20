@@ -1,8 +1,8 @@
 {
   "name": "Simple",
-  "version": "0.0.1-alpha",
+  "version": "0.0.2-1-alpha",
   "description": "A very Simple front-end ibrary",
-  "main": "test.js",
+  "main": "Simple.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
