@@ -17,18 +17,25 @@ let Demo = Simple({
 Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
 */
 /*
-let EventComponent = Simple({
+let emitter = Simple.Emitter({count: 1})
+emitter.on('request-seconds', function(component) {
+  component.updateProps({count: this.state.count})
+})
+emitter.on('add-1', function(component) {
+  this.state.count += 1
+  component.updateProps({count: this.state.count})
+})
+
+let EventComponent = Simple.Component({
+  emitter: emitter,
   init: function() {
-    this.state = {count: 1}
+    this.emit('request-seconds')
   },
   render: function() {
     return this.div(
-              this.p(this.state.count + ' seconds 🐸'),
-              this.button({'click': this.onClick.bind(this)}, '+1s'))
-  },
-  onClick: function() {
-    let count = this.state.count
-    this.setState({'count': count+1})   // setState function will render the element again
+              this.p(this.props.count + ' seconds 🐸'),
+              this.button({'click': ()=>{ this.emit('add-1')} },
+                '+1s'))
   }
 })
 
@@ -55,18 +62,6 @@ let TodoList = Simple({
 
 let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'})
 todoList.appendTo(document.getElementById('app'))
-*/
-
-/*
-let Demo = Simple({
-  state: {message: 'hello'},
-  render: function() {
-    return  this.div({class: 'sample-div'}, this.state.message)
-  }
-})
-
-let demo = Demo().appendTo(document.getElementById('app'))
-demo.setState({message: 'world'})
 */
 
 /*
@@ -115,27 +110,50 @@ let Demo = Simple({
 Demo().appendTo(document.getElementById('app'))
 */
 /*
-let Demo = Simple({
-  state: {text: ''},
+let emitter = Simple.Emitter({
+  inputText: ''
+})
+
+emitter.on('input', function(component, val) {
+  this.state.inputText = val
+  component.updateProps({text: val})
+})
+
+let Demo = Simple.Component({
+  emitter: emitter,
+  getDefaultProps: function() {
+    return {title: 'default titile', text: ''}
+  },
   render: function() {
     return  this.div(
               this.h4(this.props.title),
-              this.input({input: this.onChangeInput.bind(this),
+              this.input({input: (e)=> {this.emit('input', e.target.value)},
                           placeholder: 'enter your text here',
-                          value: this.state.text}),
-              this.p(this.state.text))
-  },
-  onChangeInput: function(e) {
-    let text = e.target.value
-    this.setState({text: text})
+                          value: this.props.text}),
+              this.p(this.props.text))
   }
 })
 
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
 */
 
-/*
-let TodoItem = Simple({
+let emitter = Simple.Emitter({
+  todos: ['TODO Item 1', 'TODO Item 2']
+})
+
+emitter.on('delete-todo', function(component, offset) {
+  let todos = this.state.todos
+  todos.splice(offset, 1)
+  component.updateProps({todos})
+})
+
+emitter.on('add-todo', function(component, todo) {
+  let todos = this.state.todos
+  todos.push(todo)
+  component.updateProps({todos})
+})
+
+let TodoItem = Simple.Component({
   render: function() {
     return this.div({style: 'clear: both; padding: 12px;', key: this.props.key},
               this.p({style: 'float: left; margin: 0 24px 0 0; margin-right: 24px;' }, this.props.text),
@@ -150,32 +168,28 @@ let TodoItem = Simple({
   }
 })
 
-let Todo = Simple({
-  state: {data: ['TODO Item 1', 'TODO Item 2']},
+let Todo = Simple.Component({
+  emitter: emitter,
+  getDefaultProps: function() {
+    return {todos: this.emitter.getState().todos}
+  },
   render: function() {
     return this.div({class: 'todo'},
               this.h2({class: 'todo-title'}, this.props.title),
               this.div({class: 'add-item-container'},
                 this.input({placeholder: 'add new item here', ref: 'inputBox'}),
                 this.button({click: this.clickAddItem.bind(this)}, 'Add Item')),
-              this.state.data.map((d, i) => TodoItem({text: d, 'key': i, remove: this.removeItem.bind(this) })))
+              this.props.todos.map((d, i) => TodoItem({text: d, 'key': i, remove: this.removeItem.bind(this) })))
   },
   clickAddItem: function() {
-    this.addItem(this.refs.inputBox.value)
-  },
-  addItem: function(item) {
-    this.state.data.push(item)
-    this.setState(this.state) // or this.forceUpdate
+    this.emit('add-todo', this.refs.inputBox.value)
   },
   removeItem: function(offset) {
-    let data = this.state.data
-    data.splice(offset, 1)
-    this.forceUpdate()
+    this.emit('delete-todo', offset)
   }
 })
 
 let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
-*/
 
 /*
 let TodoList = Simple({
@@ -211,6 +225,7 @@ let TodoApp = Simple({
 TodoApp().appendTo(document.getElementById('app'))
 */
 
+/*
 let PressureTest = Simple({
   init: function() {
     this.state = {count: 1000}
@@ -228,11 +243,21 @@ let PressureTest = Simple({
 
 let pressureTest = PressureTest().appendTo(document.getElementById('app'))
 pressureTest.setState({count: 20000})
-/*
-setTimeout(()=> {
-  pressureTest.setState({count: 100})
-}, 2000)
-*/
+
 pressureTest.setState({count: 100})
 pressureTest.setState({count: 30000})
 pressureTest.setState({count: 500})
+*/
+
+/*
+let emitter = Simple.Emitter({count: 1})
+
+emitter.on('add', function(count) {
+  this.state.count += count
+  return {count: count}
+})
+
+emitter.emit('add', 3)
+emitter.emit('add', 5)
+console.log(emitter.getState())
+*/
