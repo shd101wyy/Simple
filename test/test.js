@@ -19,11 +19,11 @@ Demo({message: 'Hello World'}).appendTo(document.getElementById('app'))
 /*
 let emitter = Simple.Emitter({count: 1})
 emitter.on('request-seconds', function(component) {
-  component.updateProps({count: this.state.count})
+  component.setProps({count: this.state.count})
 })
 emitter.on('add-1', function(component) {
   this.state.count += 1
-  component.updateProps({count: this.state.count})
+  component.setProps({count: this.state.count})
 })
 
 let EventComponent = Simple.Component({
@@ -116,7 +116,7 @@ let emitter = Simple.Emitter({
 
 emitter.on('input', function(component, val) {
   this.state.inputText = val
-  component.updateProps({text: val})
+  component.setProps({text: val})
 })
 
 let Demo = Simple.Component({
@@ -137,20 +137,27 @@ let Demo = Simple.Component({
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
 */
 
-let emitter = Simple.Emitter({
-  todos: ['TODO Item 1', 'TODO Item 2']
+let emitter = Simple.Emitter(function() {
+	this.state = {
+		todos: ['TODO Item 1', 'TODO Item 2']  // initial state
+	}
 })
+/*
+let emitter = Simple.Emitter({
+  todos: ['TODO Item 1', 'TODO Item 2']  // initial state
+})
+*/
 
 emitter.on('delete-todo', function(component, offset) {
   let todos = this.state.todos
   todos.splice(offset, 1)
-  component.updateProps({todos})
+  component.setProps({todos})
 })
 
 emitter.on('add-todo', function(component, todo) {
   let todos = this.state.todos
   todos.push(todo)
-  component.updateProps({todos})
+  component.setProps({todos})
 })
 
 let TodoItem = Simple.Component({
@@ -161,10 +168,6 @@ let TodoItem = Simple.Component({
   },
   deleteTodoItem: function() {
     this.props.remove(this.props.key)
-  },
-  componentWillUnmount: function() {
-    let x = this.props.text
-    console.log(x)
   }
 })
 
@@ -190,6 +193,8 @@ let Todo = Simple.Component({
 })
 
 let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
+emitter.emit('add-todo', 'This is new TODO item', todo)
+todo.emit('add-todo', 'This is another ner TODO item')
 
 /*
 let TodoList = Simple({

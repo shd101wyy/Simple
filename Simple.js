@@ -143,27 +143,19 @@
 
 	SimpleBase.prototype.componentDidUnmount = function () {};
 
-	/*
-	SimpleBase.prototype.setState = function(newState) {
-	  for (let key in newState) {
-	    this.state[key] = newState[key]
+	SimpleBase.prototype.setState = function (newState) {
+	  if (this.state) {
+	    Object.assign(this.state, newState);
 	  }
+	  this.forceUpdate();
+	};
 
-	  this.forceUpdate()
-	}
-	*/
-
-	SimpleBase.prototype.updateProps = function (newProps) {
+	SimpleBase.prototype.setProps = function (newProps) {
 	  Object.assign(this.props, newProps);
 	  this.forceUpdate();
 	};
 
 	SimpleBase.prototype.forceUpdate = function () {
-	  // warning to prohabit 'this.state'
-	  if (this.state) {
-	    throw 'Error: state is not allowed in Simple.Component';
-	  }
-
 	  this.componentWillUpdate();
 
 	  this.toDOM(this.render()); // render element
@@ -556,8 +548,15 @@
 	  if (!(this instanceof Emitter)) {
 	    return new Emitter(initialState);
 	  }
-	  this.state = initialState;
 	  this.subscriptions = {};
+
+	  if (initialState.constructor === Function) {
+	    var initFunc = initialState;
+	    this.state = {};
+	    initFunc.call(this);
+	  } else {
+	    this.state = initialState;
+	  }
 	}
 	Emitter.prototype.constructor = Emitter;
 

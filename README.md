@@ -3,56 +3,59 @@
 
 - [Simple](#simple)
 	- [Introduction](#introduction)
-	- [How *Simple* Works](#how-simple-works)
-	- [SimpleComponent Lifecycle](#simplecomponent-lifecycle)
-	- [Use wrapped native DOM elements](#use-wrapped-native-dom-elements)
-	- [Create your own SimpleComponent](#create-your-own-simplecomponent)
-	- [Create Stateless Component](#create-stateless-component)
-	- [Bind Event for Component](#bind-event-for-component)
-	- [Embed Component inside another Component](#embed-component-inside-another-component)
-	- [Todo List Example](#todo-list-example)
-	- [Emitter (not implemented experimental feature)](#emitter-not-implemented-experimental-feature)
+	- [Component](#component)
+		- [How *Simple* View Layer Works](#how-simple-view-layer-works)
+		- [Component Lifecycle](#component-lifecycle)
+		- [Use wrapped native DOM elements](#use-wrapped-native-dom-elements)
+		- [Create your own Component](#create-your-own-component)
+		- [Create Stateless Component](#create-stateless-component)
+		- [Bind Event for Component](#bind-event-for-component)
+		- [Embed Component inside another Component](#embed-component-inside-another-component)
+	- [Emitter](#emitter)
+		- [How to use Emitter](#how-to-use-emitter)
+	- [Combine SimpleComponent with Emitter](#combine-simplecomponent-with-emitter)
+		- [TODO Example using Component and Emitter](#todo-example-using-component-and-emitter)
 	- [How to use this library](#how-to-use-this-library)
 	- [Thanks](#thanks)
 
 <!-- tocstop -->
 
-
-### Simple
+## Simple
 *under development. API might change*  
 created by Yiyi Wang (shd101wyy)  
 
-#### Introduction
+### Introduction
 **Simple** is a very **Simple** front-end library  without any extra dependencies.  
 It is extremely small and blazingly fast (*maybe*).  
 The idea of this library is from [React](https://facebook.github.io/react/) and Atom Editor [space-pen](https://github.com/atom-archive/space-pen)
 
 ```javascript
-let Demo = Simple(function(message) {
+let Demo = Simple.Component(function(message) {
   return this.div(message)
 })
 
 Demo('Hello World').appendTo(document.getElementById('app'))
 ```
-
-#### How *Simple* Works
+### Component
+**View** contains many **Components**
+#### How *Simple* View Layer Works
 Core of **Simple** mainly consists of 3 parts:
 ```
 SimpleComponent <= SimpleBase <= SimpleDOM
 ```
 * **SimpleDOM**  
-Low level abstraction for fast DOM manipulation.  
-You can regard **SimpleDOM** as a kind of Virtual DOM, which helps improve DOM rendering speed.  
-Many native DOM element such as `div, button, p` are already wrapped by **SimpleDOM** for you.
+Low level abstraction for fast DOM manipulation.   
+You can regard **SimpleDOM** as a kind of Virtual DOM, which helps improve DOM rendering speed.   
+Many native DOM element such as `div, button, p` are already wrapped by **SimpleDOM** for you.  
 
 * **SimpleBase**  
 Inherited from **SimpleDOM**, **SimpleBase** is a higher level abstraction.  
 It offers many basic prototype functions such as `getDefaultProps`, etc.  
 
-* **SimpleComponent**  
-Inherited from **SimpleBase**, **SimpleComponent** is user-defined and highly flexible.  
+* **Component**  
+Inherited from **SimpleBase**, **Component** is user-defined and highly flexible.  
 
-#### SimpleComponent Lifecycle  
+#### Component Lifecycle  
 1. `init()`  
 Called only once before the element is rendered. You should put all your initialization here.  
 
@@ -101,9 +104,9 @@ Basically, it is in the format of
 this.tagName([attributes], [content], [children]) // attributes, content, children can be omitted
 ```
 
-#### Create your own SimpleComponent  
+#### Create your own Component  
 ```javascript
-let MyComponent = Simple({            
+let MyComponent = Simple.Component({            
     render: function() {               // render function has to be defined.
       return this.div({class: 'my-component'}, 'Hello World')
     }
@@ -114,7 +117,7 @@ MyComponent().appendTo(document.body)
 
 #### Create Stateless Component
 ```javascript
-let Greetings = Simple(function(name) {
+let Greetings = Simple.Component(function(name) {
   return this.div(`Hello ${name}!`)
 })
 
@@ -125,7 +128,7 @@ Greetings('Sexy Aaron').appendTo(document.body)
 **Simple** supports all native browser events such as `click`, `input`, and so on  
 The example below shows how to bind `click` event to our `button`, so that each time we click the button, the `p` will update its content
 ```javascript
-let EventComponent = Simple({
+let EventComponent = Simple.Component({
   init: function() {
     this.state = {count: 1}
   },
@@ -143,25 +146,23 @@ let EventComponent = Simple({
 <img src="https://cloud.githubusercontent.com/assets/1908863/14619875/5093c6ac-057f-11e6-8f80-67f90a614115.gif" width=500>
 
 #### Embed Component inside another Component
-We can use our defined **SimpleComponent** inside another **SimpleComponent**  
+We can use our defined **Component** inside another **Component**  
 For example:
 ```javascript
-let TodoItem = Simple(function(todo) {
+let TodoItem = Simple.Component(function(todo) {
   return this.div({style: {width: '400px', height: '16px', marginBottom: '6px'}},
             todo)
 })
 
-let TodoList = Simple({
+let TodoList = Simple.Component({
   getDefaultProps: function() {
-    return {title: 'No title defined'}
-  },
-  init: function() {
-    this.state = {data: ['Too young too simple', 'Sometimes native']}  // initial state
+    return {title: 'No title defined',
+						data: ['Too young too simple', 'Sometimes native']}
   },
   render: function() {
     return this.div({class: 'todo-list'},
               this.h2(this.props.title),
-              this.state.data.map(todo => TodoItem( todo )))
+              this.props.data.map(todo => TodoItem( todo )))
   }
 })
 
@@ -172,67 +173,98 @@ todoList.appendTo(document.getElementById('app'))
 The rendered result is like below   
 ![screen shot 2016-04-18 at 4 15 23 pm](https://cloud.githubusercontent.com/assets/1908863/14620133/cd886b12-0580-11e6-9dee-039e966591ec.png)
 
-
-#### Todo List Example
-The **Todo List** code sample is referred from [React](https://facebook.github.io/react/) website but written by **Simple** library.
+### Emitter
+**Emitter** is the **Simple** library event layer.  
+Each **emitter** object should contain a **state** that is used to store your application data.  
+#### How to use Emitter
 ```javascript
-// Todo List example written by Simple
-let TodoList = Simple({
-  render: function() {
-    let createItem = (item)=> {
-      return this.li(item.text)
-    }
-    return this.ul(this.props.items.map(createItem))
-  }
+let emitter = new Simple.Emitter({count: 1})  // define a emitter with initial state
+
+emitter.on('add', function(num) {
+	let count = this.state.count // get count that is stored in state
+	this.state.count += num      // update count
 })
 
-let TodoApp = Simple({
-  init: function() {
-    this.state = {items: [], text: ''}
-  },
-  onInput: function(e) {
-    this.setState({text: e.target.value})
-  },
-  handleSubmit: function(e) {
-    e.preventDefault()
-    let nextItems = this.state.items.concat([{text: this.state.text, id: Date.now()}]);
-    let nextText = '';
-    this.setState({items: nextItems, text: nextText});
-  },
-  render: function() {
-    return this.div(
-            this.h3('TODO '),
-            TodoList({items: this.state.items}),
-            this.form({submit: this.handleSubmit.bind(this)},
-              this.input({input: this.onInput.bind(this), value: this.state.text}),
-              this.button(`Add #${this.state.items.length + 1}`)))
-  }
-})
+emitter.emit('add', 2)         // emit 'add' event with data '2'
+emitter.emit('add', 3)         // ...
 
-TodoApp().appendTo(document.getElementById('app'))
+emitter.getState()						 //  => {count: 6}
 ```
 
-#### Emitter (not implemented experimental feature)
+### Combine SimpleComponent with Emitter
+For the most of time, it is not recommended that a **Component** has state.  
+Instead, we use a **Emitter** to store the state and control the **Component**.
+
+#### TODO Example using Component and Emitter
 ```javascript
-let App = Simple({
+// Our Emitter
+let emitter = Simple.Emitter({
+  todos: ['TODO Item 1', 'TODO Item 2']  // initial state
+})
+
+// or
+
+let emitter = Simple.Emitter(function() {
+	this.state = {
+		todos: ['TODO Item 1', 'TODO Item 2']  // initial state
+	}
+})
+
+emitter.on('delete-todo', function(component, offset) {
+  let todos = this.state.todos
+  todos.splice(offset, 1)               // remove the todo at offset
+  component.setProps({todos})           // tell component to update its props and re-render the element
+})
+
+emitter.on('add-todo', function(component, todo) {
+  let todos = this.state.todos
+  todos.push(todo)
+  component.setProps({todos})
+})
+
+// Our Components
+let TodoItem = Simple.Component({
+  render: function() {
+    return this.div({style: 'clear: both; padding: 12px;', key: this.props.key},
+              this.p({style: 'float: left; margin: 0 24px 0 0; margin-right: 24px;' }, this.props.text),
+              this.button({click: this.deleteTodoItem.bind(this)}, 'x'))
+  },
+  deleteTodoItem: function() {
+    this.props.remove(this.props.key)
+  }
+})
+
+let Todo = Simple.Component({
+  emitter: emitter,     // bind our emitter to our Todo Component
   getDefaultProps: function() {
-    return {name: 'Steve',
-            emitter: new Emitter()} // create emitter
+    return {todos: this.emitter.getState().todos, title: 'No title defined'}
   },
   render: function() {
-    return this.div(`My name is ${this.props.name}`)
+    return this.div({class: 'todo'},
+              this.h2({class: 'todo-title'}, this.props.title),
+              this.div({class: 'add-item-container'},
+                this.input({placeholder: 'add new item here', ref: 'inputBox'}),
+                this.button({click: this.clickAddItem.bind(this)}, 'Add Item')),
+              this.props.todos.map((d, i) => TodoItem({text: d, 'key': i, remove: this.removeItem.bind(this) })))
   },
-  changeName: function(newName) {
-    this.props.name = newName
-    this.props.emitter.emit('name-did-change')
+  clickAddItem: function() {
+    this.emit('add-todo', this.refs.inputBox.value) // emit 'add-todo' to emitter
   },
-  onDidChangeName: function(callback) {
-    this.props.emitter.on('name-did-change', callback)
+  removeItem: function(offset) {
+    this.emit('delete-todo', offset)                // emit 'delete-todo' to emitter
   }
 })
+
+let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
+
+emitter.emit('add-todo', 'This is new TODO item', todo)  // emitter.emit([name], [data], [component])
+// or
+todo.emit('add-todo', 'This is another ner TODO item')
 ```
 
-#### How to use this library
+With **Component** and **Emitter**, we can build well-structured web applications ;)
+
+### How to use this library
 I haven't published this library on `npmjs` yet since this library is still under development.  
 The only way to use this library right now is to download it and include the `Simple.js` file in `html` file.  
 
@@ -242,7 +274,7 @@ The only way to use this library right now is to download it and include the `Si
 </head>
 ```
 
-#### Thanks
+### Thanks
 
 > MIT License  
 仅以此库祭奠我逝去的青春 eru pusai kongguruu
