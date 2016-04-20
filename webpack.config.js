@@ -5,7 +5,9 @@ module.exports = {
   entry: path.resolve(__dirname, './lib/Simple.js'),
   output: {
     path: path.resolve(__dirname, './'),
-    filename: 'Simple.js'
+    filename: 'Simple.js',
+    library: 'Simple',
+    libraryTarget: 'commonjs2'
   },
   module: {
     loaders: [

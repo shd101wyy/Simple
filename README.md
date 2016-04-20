@@ -210,13 +210,13 @@ let emitter = Simple.Emitter(function() {
 	}
 })
 
-emitter.on('delete-todo', function(component, offset) {
+emitter.on('delete-todo', function(offset, component) {
   let todos = this.state.todos
   todos.splice(offset, 1)               // remove the todo at offset
   component.setProps({todos})           // tell component to update its props and re-render the element
 })
 
-emitter.on('add-todo', function(component, todo) {
+emitter.on('add-todo', function(todo, component) {
   let todos = this.state.todos
   todos.push(todo)
   component.setProps({todos})

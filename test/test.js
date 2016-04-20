@@ -1,4 +1,5 @@
 'use strict'
+
 /*
 let Greetings = Simple(function(name) {
   return this.div(`Hello ${name}!`)
@@ -136,18 +137,12 @@ let Demo = Simple.Component({
 
 Demo({title: 'This is a demo'}).appendTo(document.getElementById('app'))
 */
-
+/*
 let emitter = Simple.Emitter(function() {
 	this.state = {
 		todos: ['TODO Item 1', 'TODO Item 2']  // initial state
 	}
 })
-/*
-let emitter = Simple.Emitter({
-  todos: ['TODO Item 1', 'TODO Item 2']  // initial state
-})
-*/
-
 emitter.on('delete-todo', function(component, offset) {
   let todos = this.state.todos
   todos.splice(offset, 1)
@@ -195,7 +190,7 @@ let Todo = Simple.Component({
 let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
 emitter.emit('add-todo', 'This is new TODO item', todo)
 todo.emit('add-todo', 'This is another ner TODO item')
-
+*/
 /*
 let TodoList = Simple({
   render: function() {

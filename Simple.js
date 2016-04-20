@@ -1,3 +1,4 @@
+module.exports =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -49,30 +50,25 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Component = exports.Emitter = undefined;
-
-	var _Component = __webpack_require__(1);
-
-	var _Component2 = _interopRequireDefault(_Component);
-
-	var _Emitter = __webpack_require__(4);
-
-	var _Emitter2 = _interopRequireDefault(_Emitter);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var Component = __webpack_require__(1);
+	var Emitter = __webpack_require__(4);
 
 	var Simple = {
-	  Component: _Component2.default,
-	  Emitter: _Emitter2.default
+	  Component: Component,
+	  Emitter: Emitter
 	};
 
-	if (window) {
+	if (typeof window !== 'undefined') {
 	  window.Simple = Simple;
 	}
 
+	if (true) {
+	  module.exports = Simple;
+	}
+
 	exports.default = Simple;
-	exports.Emitter = _Emitter2.default;
-	exports.Component = _Component2.default;
+	exports.Component = Component;
+	exports.Emitter = Emitter;
 
 /***/ },
 /* 1 */
@@ -80,22 +76,14 @@
 
 	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _SimpleBase = __webpack_require__(2);
-
-	var _SimpleBase2 = _interopRequireDefault(_SimpleBase);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var SimpleBase = __webpack_require__(2);
 
 	function createSimpleComponent(methods) {
 	  var SimpleComponent = function SimpleComponent(props) {
 	    if (!this || !(this instanceof SimpleComponent)) {
 	      return new SimpleComponent(props);
 	    }
-	    _SimpleBase2.default.call(this);
+	    SimpleBase.call(this);
 
 	    for (var _len = arguments.length, children = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	      children[_key - 1] = arguments[_key];
@@ -114,7 +102,7 @@
 	    this.componentDidMount();
 	  };
 
-	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
+	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
 
 	  for (var key in methods) {
 	    SimpleComponent.prototype[key] = methods[key];
@@ -130,11 +118,11 @@
 	    if (!this || !this instanceof SimpleComponent) {
 	      return new SimpleComponent(props);
 	    }
-	    _SimpleBase2.default.call(this);
+	    SimpleBase.call(this);
 
 	    this.toDOM(func.call(this, props)); // render element
 	  };
-	  SimpleComponent.prototype = Object.create(_SimpleBase2.default.prototype);
+	  SimpleComponent.prototype = Object.create(SimpleBase.prototype);
 
 	  return SimpleComponent;
 	}
@@ -147,7 +135,7 @@
 	  }
 	}
 
-	exports.default = Component;
+	module.exports = Component;
 
 /***/ },
 /* 2 */
@@ -155,15 +143,7 @@
 
 	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _SimpleDOM = __webpack_require__(3);
-
-	var _SimpleDOM2 = _interopRequireDefault(_SimpleDOM);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var SimpleDOM = __webpack_require__(3);
 
 	var validTags = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section  select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
 
@@ -178,12 +158,12 @@
 	 * Derive from SimpleDOM class
 	 */
 	function SimpleBase() {
-	  _SimpleDOM2.default.call(this);
+	  SimpleDOM.call(this);
 	  this.props = this.getDefaultProps();
 	  this.refs = {};
 	}
 
-	SimpleBase.prototype = Object.create(_SimpleDOM2.default.prototype);
+	SimpleBase.prototype = Object.create(SimpleDOM.prototype);
 
 	SimpleBase.prototype.getDefaultProps = function () {
 	  return {};
@@ -242,7 +222,7 @@
 	};
 
 	SimpleBase.prototype.appendTo = function (obj) {
-	  if (obj instanceof _SimpleDOM2.default) {
+	  if (obj instanceof SimpleDOM) {
 	    obj.appendChild(this);
 	  } else {
 	    obj.appendChild(this.element);
@@ -297,7 +277,7 @@
 	    }
 	    */
 
-	    return new _SimpleDOM2.default(validTags[i], attributes, content, children, this);
+	    return new SimpleDOM(validTags[i], attributes, content, children, this);
 	  };
 	};
 
@@ -307,7 +287,7 @@
 
 	SimpleBase.prototype.constructor = SimpleBase;
 
-	exports.default = SimpleBase;
+	module.exports = SimpleBase;
 
 /***/ },
 /* 3 */
@@ -316,9 +296,6 @@
 	'use strict';
 	// A kind of Virtual DOM written by Yiyi Wang (shd101wyy)
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	function isNativeEvent(eventname) {
 	  return typeof document.body["on" + eventname] !== "undefined";
 	}
@@ -606,7 +583,7 @@
 	  }
 	};
 
-	exports.default = SimpleDOM;
+	module.exports = SimpleDOM;
 
 /***/ },
 /* 4 */
@@ -617,9 +594,6 @@
 	 * Event emitter class
 	 */
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	function Emitter() {
 	  var initialState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -644,11 +618,7 @@
 	  var sender = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
 	  if (this.subscriptions[name]) {
-	    if (!sender) {
-	      this.subscriptions[name].call(this, data);
-	    } else {
-	      this.subscriptions[name].call(this, sender, data);
-	    }
+	    this.subscriptions[name].call(this, data, sender);
 	  }
 	};
 
@@ -687,7 +657,7 @@
 	  return this.state;
 	};
 
-	exports.default = Emitter;
+	module.exports = Emitter;
 
 /***/ }
 /******/ ]);
