@@ -1,14 +1,16 @@
 {
-  "name": "simple",
-  "version": "0.0.1",
+  "name": "Simple",
+  "version": "0.0.1-alpha",
   "description": "A very Simple front-end ibrary",
   "main": "test.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "simple"
+    "simple",
+    "front-end"
   ],
+  "repository": "https://github.com/shd101wyy/Simple.git",
   "author": "shd101wyy",
   "license": "MIT",
   "devDependencies": {

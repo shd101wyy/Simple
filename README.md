@@ -13,7 +13,7 @@
 		- [Embed Component inside another Component](#embed-component-inside-another-component)
 	- [Emitter](#emitter)
 		- [How to use Emitter](#how-to-use-emitter)
-	- [Combine SimpleComponent with Emitter](#combine-simplecomponent-with-emitter)
+	- [Combine Component with Emitter](#combine-component-with-emitter)
 		- [TODO Example using Component and Emitter](#todo-example-using-component-and-emitter)
 	- [How to use this library](#how-to-use-this-library)
 	- [Thanks](#thanks)
@@ -21,7 +21,7 @@
 <!-- tocstop -->
 
 ## Simple
-*under development. API might change*  
+*Under Development. Fast Release Cycle on NPM. API might change*  
 created by Yiyi Wang (shd101wyy)  
 
 ### Introduction
@@ -191,7 +191,7 @@ emitter.emit('add', 3)         // ...
 emitter.getState()						 //  => {count: 6}
 ```
 
-### Combine SimpleComponent with Emitter
+### Combine Component with Emitter
 For the most of time, it is not recommended that a **Component** has state.  
 Instead, we use a **Emitter** to store the state and control the **Component**.
 
