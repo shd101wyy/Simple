@@ -594,6 +594,8 @@ module.exports =
 	 * Event emitter class
 	 */
 
+	var emitters = {};
+
 	function Emitter() {
 	  var initialState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -601,16 +603,31 @@ module.exports =
 	    return new Emitter(initialState);
 	  }
 	  this.subscriptions = {};
+	  this.id = null;
 
 	  if (initialState.constructor === Function) {
 	    var initFunc = initialState;
-	    this.state = {};
+	    this.state = initialState;
 	    initFunc.call(this);
 	  } else {
 	    this.state = initialState;
 	  }
 	}
+
 	Emitter.prototype.constructor = Emitter;
+
+	Emitter.prototype.registerId = function (id) {
+	  if (emitters[id]) {
+	    throw 'Error: ' + id + ' is already registered in Emitters';
+	  } else {
+	    this.id = id;
+	    emitters[id] = this;
+	  }
+	};
+
+	Emitter.getEmitterById = function (id) {
+	  return emitters[id];
+	};
 
 	// emitter.emit()
 	Emitter.prototype.emit = function (name) {
