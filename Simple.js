@@ -98,7 +98,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var SimpleDOM = __webpack_require__(4);
+	var SimpleDOM = __webpack_require__(2);
 
 	function createSimpleComponent(methods) {
 	  var SimpleComponent = function SimpleComponent(props) {
@@ -161,98 +161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Component;
 
 /***/ },
-/* 2 */,
-/* 3 */
-/***/ function(module, exports) {
-
-	'use strict';
-	/*
-	 * Event emitter class
-	 */
-
-	var emitters = {};
-
-	function Emitter() {
-	  var initialState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-	  this.subscriptions = {};
-	  this.id = null;
-
-	  if (initialState.constructor === Function) {
-	    var initFunc = initialState;
-	    this.state = initialState;
-	    initFunc.call(this);
-	  } else {
-	    this.state = initialState;
-	  }
-	}
-
-	Emitter.prototype.constructor = Emitter;
-
-	Emitter.prototype.registerId = function (id) {
-	  if (emitters[id]) {
-	    throw 'Error: ' + id + ' is already registered in Emitters';
-	  } else {
-	    this.id = id;
-	    emitters[id] = this;
-	  }
-	};
-
-	Emitter.getEmitterById = function (id) {
-	  return emitters[id];
-	};
-
-	// emitter.emit()
-	Emitter.prototype.emit = function (name) {
-	  var data = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-	  var sender = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-
-	  if (this.subscriptions[name]) {
-	    this.subscriptions[name].call(this, data, sender);
-	  }
-	};
-
-	// emitter.on()
-	// callback should be
-	// - function(data, component) {
-	//   }
-	Emitter.prototype.on = function () {
-	  if (arguments.length === 2) {
-	    var name = arguments[0],
-	        callback = arguments[1];
-	    if (this.subscriptions[name]) {
-	      throw 'Error: ' + name + ' is already registered in Emitter object';
-	    } else {
-	      this.subscriptions[name] = callback;
-	    }
-	  } else {
-	    var obj = arguments[0];
-	    for (var _name in obj) {
-	      this.on(_name, obj[_name]);
-	    }
-	  }
-	};
-
-	// unsubscript the event
-	Emitter.prototype.off = function (name) {
-	  this.subscriptions[name] = null;
-	};
-
-	Emitter.prototype.destroy = function () {
-	  this.state = {};
-	  this.subscriptions = {};
-	};
-
-	/*
-	Emitter.prototype.getState = function() {
-	  return this.state
-	}
-	*/
-
-	module.exports = Emitter;
-
-/***/ },
-/* 4 */
+/* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -390,7 +299,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      for (var key in d.attributes) {
 	        var val = d.attributes[key];
 	        if (isNativeEvent(key)) {
-	          addEvent(element, key, val);
+	          if (this._eventListeners[key] !== val) {
+	            removeEvent(element, key, this._eventListeners[key]);
+	            addEvent(element, key, val);
+	            this._eventListeners[key] = val;
+	          }
 	        } else if (key === 'ref') {
 	          this.owner.refs[val] = element;
 	        } else if (key === 'style' && val.constructor === Object) {
@@ -456,6 +369,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var val = this.attributes[key];
 	      if (isNativeEvent(key)) {
 	        addEvent(this.element, key, val);
+	        this._eventListeners[key] = val;
 	      } else if (key === 'ref') {
 	        this.owner.refs[val] = this.element;
 	      } else if (key === 'style' && val.constructor === Object) {
@@ -529,6 +443,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.content = content;
 	    d.children = children;
 	    d.owner = this;
+	    d._eventListeners = {};
 	    return d;
 	  };
 	};
@@ -540,6 +455,96 @@ return /******/ (function(modules) { // webpackBootstrap
 	SimpleDOM.prototype.constructor = SimpleDOM;
 
 	module.exports = SimpleDOM;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	'use strict';
+	/*
+	 * Event emitter class
+	 */
+
+	var emitters = {};
+
+	function Emitter() {
+	  var initialState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+	  this.subscriptions = {};
+	  this.id = null;
+
+	  if (initialState.constructor === Function) {
+	    var initFunc = initialState;
+	    this.state = initialState;
+	    initFunc.call(this);
+	  } else {
+	    this.state = initialState;
+	  }
+	}
+
+	Emitter.prototype.constructor = Emitter;
+
+	Emitter.prototype.registerId = function (id) {
+	  if (emitters[id]) {
+	    throw 'Error: ' + id + ' is already registered in Emitters';
+	  } else {
+	    this.id = id;
+	    emitters[id] = this;
+	  }
+	};
+
+	Emitter.getEmitterById = function (id) {
+	  return emitters[id];
+	};
+
+	// emitter.emit()
+	Emitter.prototype.emit = function (name) {
+	  var data = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+	  var sender = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+	  if (this.subscriptions[name]) {
+	    this.subscriptions[name].call(this, data, sender);
+	  }
+	};
+
+	// emitter.on()
+	// callback should be
+	// - function(data, component) {
+	//   }
+	Emitter.prototype.on = function () {
+	  if (arguments.length === 2) {
+	    var name = arguments[0],
+	        callback = arguments[1];
+	    if (this.subscriptions[name]) {
+	      throw 'Error: ' + name + ' is already registered in Emitter object';
+	    } else {
+	      this.subscriptions[name] = callback;
+	    }
+	  } else {
+	    var obj = arguments[0];
+	    for (var _name in obj) {
+	      this.on(_name, obj[_name]);
+	    }
+	  }
+	};
+
+	// unsubscript the event
+	Emitter.prototype.off = function (name) {
+	  this.subscriptions[name] = null;
+	};
+
+	Emitter.prototype.destroy = function () {
+	  this.state = {};
+	  this.subscriptions = {};
+	};
+
+	/*
+	Emitter.prototype.getState = function() {
+	  return this.state
+	}
+	*/
+
+	module.exports = Emitter;
 
 /***/ }
 /******/ ])

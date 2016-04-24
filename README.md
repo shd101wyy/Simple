@@ -67,11 +67,6 @@ This is not called for the initial render.
 Called immediately after the element is done with updating rendering.  
 This is not called for the initial render.  
 
-5. `componentWillUnmount`  
-Called right before the element is removed.  
-
-6. `componentDidUnmount`  
-Called after the element is removed.  
 
 #### Use wrapped native DOM elements
 ```html
