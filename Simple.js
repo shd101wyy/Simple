@@ -522,12 +522,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    appendChildren(arguments, offset);
-	    /*
-	    if (offset < arguments.length) {
-	      children = Array.prototype.slice.call(arguments, offset)
-	      children = [].concat.apply([], children)
-	    }
-	    */
+
 	    var d = new SimpleDOM();
 	    d.tagName = validTags[i].toUpperCase();
 	    d.attributes = attributes;

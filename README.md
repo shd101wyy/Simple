@@ -109,7 +109,7 @@ let MyComponent = Simple.Component({
     }
 })
 
-MyComponent().appendTo(document.body)
+Simple.render(MyComponent(), document.body)
 ```
 
 #### Create Stateless Component
@@ -118,7 +118,7 @@ let Greetings = Simple.Component(function(name) {
   return this.div(`Hello ${name}!`)
 })
 
-Greetings('Sexy Aaron').appendTo(document.body)
+Simple.render(Greetings('Sexy Aaron'), document.body)
 ```
 
 #### Bind Event for Component
@@ -164,7 +164,7 @@ let TodoList = Simple.Component({
 })
 
 let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'})
-todoList.appendTo(document.getElementById('app'))
+Simple.render(todoList, document.getElementById('app'))
 ```
 
 The rendered result is like below   
@@ -175,7 +175,7 @@ The rendered result is like below
 Each **emitter** object should contain a **state** that is used to store your application data.  
 #### How to use Emitter
 ```javascript
-let emitter = new Simple.Emitter({count: 1})  // define a emitter with initial state
+let emitter = Simple.createEmitter({count: 1})  // define a emitter with initial state
 
 emitter.on('add', function(num) {
 	let count = this.state.count // get count that is stored in state
@@ -185,7 +185,7 @@ emitter.on('add', function(num) {
 emitter.emit('add', 2)         // emit 'add' event with data '2'
 emitter.emit('add', 3)         // ...
 
-emitter.getState()						 //  => {count: 6}
+emitter.state						 //  => {count: 6}
 ```
 
 ### Combine Component with Emitter
