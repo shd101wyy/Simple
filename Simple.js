@@ -306,14 +306,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    for (var i = 0; i < element.attributes.length; i++) {
 	      element.removeAttribute(element.attributes[i].name);
 	    }
+
+	    var eventsLength = 0,
+	        _eventListeners = element._eventListeners || {},
+	        events = {};
+
 	    if (d.attributes) {
 	      for (var key in d.attributes) {
 	        var val = d.attributes[key];
 	        if (isNativeEvent(key)) {
-	          if (element._eventListeners[key] !== val) {
-	            removeEvent(element, key, element._eventListeners[key]);
+	          if (_eventListeners[key] !== val) {
+	            removeEvent(element, key, _eventListeners[key]);
 	            addEvent(element, key, val);
-	            element._eventListeners[key] = val;
+	            _eventListeners[key] = val;
+	            events[key] = true;
 	          }
 	        } else if (key === 'ref') {
 	          this.owner.refs[val] = element;
@@ -324,6 +330,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        } else {
 	          element.setAttribute(key, val);
 	        }
+	      }
+	    }
+
+	    for (var _key in _eventListeners) {
+	      if (!events[_key]) {
+	        removeEvent(element, _key, _eventListeners[_key]);
 	      }
 	    }
 
@@ -369,8 +381,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	SimpleDOM.prototype.generateDOM = function () {
+	  var _eventListeners = { _length: 0 };
+
 	  this.element = document.createElement(this.tagName);
-	  this.element._eventListeners = {}; // HACK
 
 	  if (this.content) {
 	    this.element.appendChild(document.createTextNode(this.content));
@@ -381,7 +394,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var val = this.attributes[key];
 	      if (isNativeEvent(key)) {
 	        addEvent(this.element, key, val);
-	        this.element._eventListeners[key] = val;
+	        _eventListeners[key] = val;
+	        _eventListeners._length += 1;
 	      } else if (key === 'ref') {
 	        this.owner.refs[val] = this.element;
 	      } else if (key === 'style' && val.constructor === Object) {
@@ -392,6 +406,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.element.setAttribute(key, val);
 	      }
 	    }
+	  }
+
+	  if (_eventListeners._length) {
+	    this.element._eventListeners = _eventListeners; // HACK
 	  }
 
 	  this.appendChildrenDOMElements(this.children);
