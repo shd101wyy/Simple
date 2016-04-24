@@ -263,9 +263,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	SimpleDOM.prototype._render = function (oldElement) {
 	  var sameLevel = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-	  var d = this.render();
+	  var d = null;
+	  if (this.tagName) {
+	    d = this;
+	  } else {
+	    d = this.render();
+	  }
 	  if (!d.tagName) {
-	    this.element = d._render(oldElement);
+	    this.element = d._render(oldElement, false);
 	    if (sameLevel) {
 	      this.componentWillUpdate();
 	      this.props = d.props; // 'react' only changes props
@@ -286,9 +291,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } else {
 	    // set content
 	    if (d.content) {
-	      element.textContent = d.content;
+	      var node = element.firstChild;
+	      if (node && node.nodeName === '#text') {
+	        node.nodeValue = d.content;
+	      }
 	    } else {
-	      element.textContent = null;
+	      var _node = element.firstChild;
+	      if (_node && _node.nodeName === '#text' && _node.nodeValue) {
+	        _node.nodeValue = '';
+	      }
 	    }
 
 	    // set attributes
@@ -299,10 +310,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      for (var key in d.attributes) {
 	        var val = d.attributes[key];
 	        if (isNativeEvent(key)) {
-	          if (this._eventListeners[key] !== val) {
-	            removeEvent(element, key, this._eventListeners[key]);
+	          if (element._eventListeners[key] !== val) {
+	            removeEvent(element, key, element._eventListeners[key]);
 	            addEvent(element, key, val);
-	            this._eventListeners[key] = val;
+	            element._eventListeners[key] = val;
 	          }
 	        } else if (key === 'ref') {
 	          this.owner.refs[val] = element;
@@ -359,6 +370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	SimpleDOM.prototype.generateDOM = function () {
 	  this.element = document.createElement(this.tagName);
+	  this.element._eventListeners = {}; // HACK
 
 	  if (this.content) {
 	    this.element.appendChild(document.createTextNode(this.content));
@@ -369,7 +381,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var val = this.attributes[key];
 	      if (isNativeEvent(key)) {
 	        addEvent(this.element, key, val);
-	        this._eventListeners[key] = val;
+	        this.element._eventListeners[key] = val;
 	      } else if (key === 'ref') {
 	        this.owner.refs[val] = this.element;
 	      } else if (key === 'style' && val.constructor === Object) {
