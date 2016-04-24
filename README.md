@@ -34,26 +34,23 @@ let Demo = Simple.Component(function(message) {
   return this.div(message)
 })
 
-Demo('Hello World').appendTo(document.getElementById('app'))
+Simple.render(Demo('Hello World'), document.getElementById('app'))
 ```
 ### Component
 **View** contains many **Components**
 #### How *Simple* View Layer Works
 Core of **Simple** mainly consists of 3 parts:
 ```
-SimpleComponent <= SimpleBase <= SimpleDOM
+Component <= SimpleDOM
 ```
 * **SimpleDOM**  
 Low level abstraction for fast DOM manipulation.   
 You can regard **SimpleDOM** as a kind of Virtual DOM, which helps improve DOM rendering speed.   
 Many native DOM element such as `div, button, p` are already wrapped by **SimpleDOM** for you.  
-
-* **SimpleBase**  
-Inherited from **SimpleDOM**, **SimpleBase** is a higher level abstraction.  
-It offers many basic prototype functions such as `getDefaultProps`, etc.  
+It also offers many basic prototype functions such as `getDefaultProps`, etc.
 
 * **Component**  
-Inherited from **SimpleBase**, **Component** is user-defined and highly flexible.  
+Inherited from **SimpleDOM**, **Component** is user-defined and highly flexible.  
 
 #### Component Lifecycle  
 1. `init()`  
@@ -63,7 +60,7 @@ Called only once before the element is rendered. You should put all your initial
 Called only once immediately after the element is rendered.  
 
 3. `componentWillUpdate`  
-Called every time when `state` is updated by `setState` or `forceUpdate` is called.   
+Called every time when `state` or `props` is updated or `forceUpdate` is called.   
 This is not called for the initial render.  
 
 4. `componentDidUpdate`  
@@ -197,23 +194,15 @@ Instead, we use a **Emitter** to store the state and control the **Component**.
 
 #### TODO Example using Component and Emitter
 ```javascript
-// Our Emitter
-let emitter = Simple.Emitter({
-  todos: ['TODO Item 1', 'TODO Item 2']  // initial state
-})
-
-// or
-
-let emitter = Simple.Emitter(function() {
+let emitter = Simple.createEmitter(function() {
 	this.state = {
 		todos: ['TODO Item 1', 'TODO Item 2']  // initial state
 	}
 })
-
 emitter.on('delete-todo', function(offset, component) {
   let todos = this.state.todos
-  todos.splice(offset, 1)               // remove the todo at offset
-  component.setProps({todos})           // tell component to update its props and re-render the element
+  todos.splice(offset, 1)
+  component.setProps({todos})
 })
 
 emitter.on('add-todo', function(todo, component) {
@@ -222,7 +211,6 @@ emitter.on('add-todo', function(todo, component) {
   component.setProps({todos})
 })
 
-// Our Components
 let TodoItem = Simple.Component({
   render: function() {
     return this.div({style: 'clear: both; padding: 12px;', key: this.props.key},
@@ -235,9 +223,9 @@ let TodoItem = Simple.Component({
 })
 
 let Todo = Simple.Component({
-  emitter: emitter,     // bind our emitter to our Todo Component
+  emitter: emitter,
   getDefaultProps: function() {
-    return {todos: this.emitter.getState().todos, title: 'No title defined'}
+    return {todos: this.emitter.state.todos}
   },
   render: function() {
     return this.div({class: 'todo'},
@@ -248,14 +236,15 @@ let Todo = Simple.Component({
               this.props.todos.map((d, i) => TodoItem({text: d, 'key': i, remove: this.removeItem.bind(this) })))
   },
   clickAddItem: function() {
-    this.emit('add-todo', this.refs.inputBox.value) // emit 'add-todo' to emitter
+    this.emit('add-todo', this.refs.inputBox.value)
   },
   removeItem: function(offset) {
-    this.emit('delete-todo', offset)                // emit 'delete-todo' to emitter
+    this.emit('delete-todo', offset)
   }
 })
 
-let todo = Todo({title: 'This is TODO'}).appendTo(document.getElementById('app'))
+let todo = Todo({title: 'This is TODO'})
+Simple.render(todo, document.getElementById('app'))
 
 emitter.emit('add-todo', 'This is new TODO item', todo)  // emitter.emit([name], [data], [component])
 // or

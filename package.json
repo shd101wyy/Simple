@@ -1,6 +1,6 @@
 {
   "name": "Simple",
-  "version": "0.0.2-4-alpha",
+  "version": "0.0.2-5-alpha",
   "description": "A very Simple front-end ibrary",
   "main": "Simple.js",
   "scripts": {

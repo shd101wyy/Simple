@@ -7,7 +7,7 @@ module.exports = {
     path: path.resolve(__dirname, './'),
     filename: 'Simple.js',
     library: 'Simple',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'umd'
   },
   module: {
     loaders: [
