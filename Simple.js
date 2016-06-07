@@ -75,6 +75,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Simple = {
 	  Component: Component,
+	  Emitter: Emitter,
 	  createEmitter: createEmitter,
 	  render: render
 	};
@@ -89,6 +90,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.default = Simple;
 	exports.Component = Component;
+	exports.Emitter = Emitter;
 	exports.createEmitter = createEmitter;
 	exports.render = render;
 
@@ -276,6 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.props = d.props; // 'react' only changes props
 	      this.componentDidUpdate();
 	    }
+	    d.componentDidMount();
 	  } else if (d) {
 	    this.element = this.diff(oldElement, d);
 	  }
@@ -294,6 +297,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var node = element.firstChild;
 	      if (node && node.nodeName === '#text') {
 	        node.nodeValue = d.content;
+	      } else {
+	        element.insertBefore(document.createTextNode(d.content), node);
 	      }
 	    } else {
 	      var _node = element.firstChild;
@@ -303,23 +308,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    // set attributes
-	    for (var i = 0; i < element.attributes.length; i++) {
-	      element.removeAttribute(element.attributes[i].name);
+	    // for (let i = 0; i < element.attributes.length; i++) {
+	    while (element.attributes.length > 0) {
+	      element.removeAttribute(element.attributes[0].name);
 	    }
 
 	    var eventsLength = 0,
 	        _eventListeners = element._eventListeners || {},
-	        events = {};
+	        events = {},
+	        findEvent = false;
 
 	    if (d.attributes) {
 	      for (var key in d.attributes) {
 	        var val = d.attributes[key];
 	        if (isNativeEvent(key)) {
+	          findEvent = true;
 	          if (_eventListeners[key] !== val) {
 	            removeEvent(element, key, _eventListeners[key]);
 	            addEvent(element, key, val);
-	            _eventListeners[key] = val;
-	            events[key] = true;
+	            // _eventListeners[key] = val
+	            events[key] = val;
 	          }
 	        } else if (key === 'ref') {
 	          this.owner.refs[val] = element;
@@ -338,28 +346,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	        removeEvent(element, _key, _eventListeners[_key]);
 	      }
 	    }
+	    _eventListeners = null;
+	    if (findEvent) {
+	      element._eventListeners = events;
+	    } else {
+	      element._eventListeners = undefined;
+	    }
 
 	    // diff children
 	    if (element.children.length === d.children.length) {
-	      for (var _i = 0; _i < element.children.length; _i++) {
-	        d.children[_i]._render(element.children[_i], true);
+	      for (var i = 0; i < element.children.length; i++) {
+	        d.children[i]._render(element.children[i], true);
 	      }
 	    } else if (element.children.length > d.children.length) {
-	      var _i2 = 0;
-	      for (; _i2 < d.children.length; _i2++) {
-	        d.children[_i2]._render(element.children[_i2], true);
+	      var _i = 0;
+	      for (; _i < d.children.length; _i++) {
+	        d.children[_i]._render(element.children[_i], true);
 	      }
 	      while (element.children.length !== d.children.length) {
-	        element.removeChild(element.children[_i2]);
+	        element.removeChild(element.children[_i]);
 	      }
 	    } else {
 	      // if (element.children.length < d.children.length) {
-	      var _i3 = 0;
-	      for (; _i3 < element.children.length; _i3++) {
-	        d.children[_i3]._render(element.children[_i3], true);
+	      var _i2 = 0;
+	      for (; _i2 < element.children.length; _i2++) {
+	        d.children[_i2]._render(element.children[_i2], true);
 	      }
-	      for (; _i3 < d.children.length; _i3++) {
-	        element.appendChild(d.children[_i3]._initialRender());
+	      for (; _i2 < d.children.length; _i2++) {
+	        element.appendChild(d.children[_i2]._initialRender());
 	      }
 	    }
 	    return element;
@@ -381,7 +395,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	SimpleDOM.prototype.generateDOM = function () {
-	  var _eventListeners = { _length: 0 };
+	  var _eventListeners = {},
+	      eventLength = 0;
 
 	  this.element = document.createElement(this.tagName);
 
@@ -395,7 +410,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (isNativeEvent(key)) {
 	        addEvent(this.element, key, val);
 	        _eventListeners[key] = val;
-	        _eventListeners._length += 1;
+	        eventLength += 1;
 	      } else if (key === 'ref') {
 	        this.owner.refs[val] = this.element;
 	      } else if (key === 'style' && val.constructor === Object) {
@@ -408,7 +423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
-	  if (_eventListeners._length) {
+	  if (eventLength) {
 	    this.element._eventListeners = _eventListeners; // HACK
 	  }
 
@@ -440,12 +455,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        children = [];
 
 	    var offset = 0;
-	    if (typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === Object) {
+	    if (arguments[offset] !== null && typeof arguments[offset] !== 'undefined' && arguments[offset].constructor === Object) {
 	      attributes = arguments[offset];
 	      offset += 1;
 	    }
 
-	    if (typeof arguments[offset] !== 'undefined' && (arguments[offset].constructor === String || arguments[offset].constructor === Number)) {
+	    if (arguments[offset] !== null && typeof arguments[offset] !== 'undefined' && (arguments[offset].constructor === String || arguments[offset].constructor === Number)) {
 	      content = arguments[offset];
 	      offset += 1;
 	    }
@@ -454,12 +469,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function appendChildren(args) {
 	      var offset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 
-	      for (var _i4 = offset; _i4 < args.length; _i4++) {
-	        if (args[_i4]) {
-	          if (args[_i4].constructor === Array) {
-	            appendChildren(args[_i4]);
+	      for (var _i3 = offset; _i3 < args.length; _i3++) {
+	        if (args[_i3]) {
+	          if (args[_i3].constructor === Array) {
+	            appendChildren(args[_i3]);
 	          } else {
-	            children.push(args[_i4]);
+	            children.push(args[_i3]);
 	          }
 	        }
 	      }
