@@ -54,19 +54,21 @@ Inherited from **SimpleDOM**, **Component** is user-defined and highly flexible.
 
 #### Component Lifecycle  
 1. `init()`  
-Called only once before the element is rendered. You should put all your initialization here.  
+Invoked only once before the element is rendered. You should put all your initialization here.  
 
 2. `componentDidMount`  
-Called only once immediately after the element is rendered.  
+Invoked only once immediately after the element is rendered.  
 
 3. `componentWillUpdate`  
-Called every time when `state` or `props` is updated or `forceUpdate` is called.   
+Invoked every time when `state` or `props` is updated or `forceUpdate` is called.   
 This is not called for the initial render.  
 
 4. `componentDidUpdate`  
-Called immediately after the element is done with updating rendering.  
+Invoked immediately after the element is done with updating rendering.  
 This is not called for the initial render.  
 
+5. `componentWillUnmount`    
+Invoked immediately before a component is unmounted from the DOM.    
 
 #### Use wrapped native DOM elements
 ```html

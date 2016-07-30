@@ -55,11 +55,10 @@ let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'}
 Simple.render(todoList, document.getElementById('app'))
 */
 
-let emitter = Simple.createEmitter(function() {
-	this.state = {
+let emitter = Simple.createEmitter({
 		todos: ['TODO Item 1', 'TODO Item 2']  // initial state
-	}
 })
+
 emitter.on('delete-todo', function(offset, component) {
   let todos = this.state.todos
   todos.splice(offset, 1)
@@ -78,6 +77,9 @@ let TodoItem = Simple.Component({
               this.p({style: 'float: left; margin: 0 24px 0 0; margin-right: 24px;' }, this.props.text),
               this.button({click: this.deleteTodoItem.bind(this)}, 'x'))
   },
+	componentWillUnmount: function() {
+		console.log('componentWillUnmount', this.props.text)
+	},
   componentDidUpdate: function() {
     console.log('did update')
     console.log(this.props.text)

@@ -227,7 +227,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	SimpleDOM.prototype.render = function () {
-	  throw "Render function is not implemented";
+	  throw "Render function is not implemented.";
 	};
 
 	SimpleDOM.prototype.init = function () {};
@@ -239,8 +239,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	SimpleDOM.prototype.componentDidUpdate = function () {};
 
 	SimpleDOM.prototype.componentWillUnmount = function () {};
-
-	SimpleDOM.prototype.componentDidUnmount = function () {};
 
 	SimpleDOM.prototype.setState = function (newState) {
 	  if (this.state) {
@@ -285,9 +283,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return this.element;
 	};
 
+	/**
+	 * diff element and d, return a new element
+	 * @param  {[type]} element [old element]
+	 * @param  {[type]} d       [new element]
+	 * @return {[type]}         [output element]
+	 */
 	SimpleDOM.prototype.diff = function (element, d) {
 	  if (element.tagName !== d.tagName) {
 	    // different tag
+	    if (element['data-simple-component']) {
+	      // call componentWillUnmount if necessary
+	      element['data-simple-component'].componentWillUnmount();
+	    }
 	    var el = d._initialRender();
 	    element.parentNode.replaceChild(el, element);
 	    return el;
@@ -366,7 +374,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        d.children[_i]._render(element.children[_i], true);
 	      }
 	      while (element.children.length !== d.children.length) {
-	        element.removeChild(element.children[_i]);
+	        var child = element.children[_i];
+	        if (child['data-simple-component']) {
+	          // call componentWillUnmount if necessary
+	          child['data-simple-component'].componentWillUnmount();
+	        }
+	        element.removeChild(child);
 	      }
 	    } else {
 	      // if (element.children.length < d.children.length) {
@@ -382,21 +395,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 
-	SimpleDOM.prototype.appendChildrenDOMElements = function (children) {
+	SimpleDOM.prototype._appendChildrenDOMElements = function (children) {
 	  var _this = this;
 
 	  if (!children.length) return;
 
 	  children.forEach(function (child) {
 	    if (child.constructor === Array) {
-	      _this.appendChildrenDOMElements(child);
+	      _this._appendChildrenDOMElements(child);
 	    } else {
 	      _this.element.appendChild(child._initialRender());
 	    }
 	  });
 	};
 
-	SimpleDOM.prototype.generateDOM = function () {
+	SimpleDOM.prototype._generateDOM = function () {
 	  var _eventListeners = {},
 	      eventLength = 0;
 
@@ -431,7 +444,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.element._eventListeners = _eventListeners; // HACK
 	  }
 
-	  this.appendChildrenDOMElements(this.children);
+	  this._appendChildrenDOMElements(this.children);
 
 	  return this.element;
 	};
@@ -439,11 +452,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	SimpleDOM.prototype._initialRender = function () {
 	  if (this.tagName) {
 	    // div ...
-	    this.generateDOM();
+	    this._generateDOM();
 	  } else {
 	    var d = this.render();
 	    if (d) {
 	      this.element = d._initialRender();
+	      this.element['data-simple-component'] = this; // attach component object to dom.
 	    }
 	    this.componentDidMount();
 	  }
@@ -524,7 +538,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  if (initialState.constructor === Function) {
 	    var initFunc = initialState;
-	    this.state = initialState;
+	    this.state = {};
 	    initFunc.call(this);
 	  } else {
 	    this.state = initialState;
