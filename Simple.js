@@ -335,6 +335,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          for (var styleKey in val) {
 	            element.style[styleKey] = val[styleKey];
 	          }
+	        } else if (key === 'html') {
+	          element.innerHTML = val;
 	        } else {
 	          element.setAttribute(key, val);
 	        }
@@ -417,6 +419,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var styleKey in val) {
 	          this.element.style[styleKey] = val[styleKey];
 	        }
+	      } else if (key === 'html') {
+	        this.element.innerHTML = val;
 	      } else {
 	        this.element.setAttribute(key, val);
 	      }
@@ -550,6 +554,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (this.subscriptions[name]) {
 	    this.subscriptions[name].call(this, data, sender);
 	  }
+	};
+
+	// setState
+	Emitter.prototype.setState = function () {
+	  var states = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+	  Object.assign(this.state, states);
 	};
 
 	// emitter.on()
