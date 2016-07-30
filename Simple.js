@@ -280,6 +280,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } else if (d) {
 	    this.element = this.diff(oldElement, d);
 	  }
+
+	  if (this.element && !this.tagName) {
+	    this.element['data-simple-component'] = this; // attach component
+	  }
 	  return this.element;
 	};
 
@@ -457,9 +461,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var d = this.render();
 	    if (d) {
 	      this.element = d._initialRender();
-	      this.element['data-simple-component'] = this; // attach component object to dom.
 	    }
 	    this.componentDidMount();
+	    if (this.element) {
+	      this.element['data-simple-component'] = this; // attach component
+	    }
 	  }
 	  return this.element;
 	};

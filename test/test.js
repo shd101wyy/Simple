@@ -75,7 +75,8 @@ let TodoItem = Simple.Component({
   render: function() {
     return this.div({style: 'clear: both; padding: 12px;', key: this.props.key},
               this.p({style: 'float: left; margin: 0 24px 0 0; margin-right: 24px;' }, this.props.text),
-              this.button({click: this.deleteTodoItem.bind(this)}, 'x'))
+              this.button({click: this.deleteTodoItem.bind(this)}, 'x'),
+							this.button({click: this.consoleLog.bind(this)}, 'log'))
   },
 	componentWillUnmount: function() {
 		console.log('componentWillUnmount', this.props.text)
@@ -86,7 +87,10 @@ let TodoItem = Simple.Component({
   },
   deleteTodoItem: function() {
     this.props.remove(this.props.key)
-  }
+  },
+	consoleLog: function() {
+		console.log('consoleLog', this.props.text, this.props)
+	}
 })
 
 let Todo = Simple.Component({
