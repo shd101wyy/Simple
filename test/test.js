@@ -1,9 +1,9 @@
 /*
-let Demo = Simple.Component(function(message) {
-  return this.div(message)
+let Demo = Simple.Component(function(msg1, msg2) {
+  return this.div(msg1, msg2)
 })
-
-Simple.render(Demo('Hello World'), document.getElementById('app'))
+let demo = Demo('Hello ', 'World')
+Simple.render(demo, document.getElementById('app'))
 */
 
 /*
@@ -13,7 +13,6 @@ let Greetings = Simple.Component(function(name) {
 
 Simple.render(Greetings('Sexy Aaron'), document.body)
 */
-
 /*
 let EventComponent = Simple.Component({
   init: function() {
@@ -30,9 +29,9 @@ let EventComponent = Simple.Component({
   }
 })
 
-Simple.render(EventComponent(), document.getElementById('app'))
+let eventComponent = EventComponent()
+Simple.render(eventComponent, document.getElementById('app'))
 */
-
 /*
 let TodoItem = Simple.Component(function(todo) {
   return this.div({style: {width: '400px', height: '16px', marginBottom: '6px'}},
@@ -55,6 +54,7 @@ let todoList = TodoList({title: 'My TODO List. (I don\'t like the default one)'}
 Simple.render(todoList, document.getElementById('app'))
 */
 
+/*
 let emitter = Simple.createEmitter({
 		todos: ['TODO Item 1', 'TODO Item 2']  // initial state
 })
@@ -78,10 +78,10 @@ let TodoItem = Simple.Component({
               this.button({click: this.deleteTodoItem.bind(this)}, 'x'),
 							this.button({click: this.consoleLog.bind(this)}, 'log'))
   },
-	componentWillUnmount: function() {
+	unmount: function() {
 		console.log('componentWillUnmount', this.props.text)
 	},
-  componentDidUpdate: function() {
+  update: function() {
     console.log('did update')
     console.log(this.props.text)
   },
@@ -116,3 +116,45 @@ let Todo = Simple.Component({
 
 let todo = Todo({title: 'This is TODO'})
 Simple.render(todo, document.getElementById('app'))
+*/
+
+/*
+let StressTest = Simple.Component({
+	init: function() {
+		this.state = {
+			arr: [10, 1000, 200, 2000, 4600, 5000, 1],
+			offset: 0
+		},
+		this.interval = null
+	},
+	mount: function() {
+		this.interval = setInterval(()=> {
+			let offset = this.state.offset
+			if (offset + 1 === this.state.arr.length) {
+				console.log('done')
+				clearInterval(this.interval)
+			} else {
+				console.log('update')
+				this.setState({offset: offset+1})
+			}
+		}, 1000)
+	},
+	render: function() {
+		let offset = this.state.offset,
+				num = this.state.arr[offset],
+				divs = []
+
+		let i = 0
+		while (i < num) {
+			divs.push(this.p(i))
+			i++
+		}
+
+		console.log(num)
+
+		return this.div(divs)
+	}
+})
+
+Simple.render(StressTest(), document.getElementById('app'))
+*/

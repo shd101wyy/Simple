@@ -41,34 +41,31 @@ Simple.render(Demo('Hello World'), document.getElementById('app'))
 #### How *Simple* View Layer Works
 Core of **Simple** mainly consists of 3 parts:
 ```
-Component <= SimpleDOM
+Component <= SimpleDOM <= SimpleElement
 ```
-* **SimpleDOM**  
+* **SimpleElement**  
 Low level abstraction for fast DOM manipulation.   
-You can regard **SimpleDOM** as a kind of Virtual DOM, which helps improve DOM rendering speed.   
-Many native DOM element such as `div, button, p` are already wrapped by **SimpleDOM** for you.  
-It also offers many basic prototype functions such as `getDefaultProps`, etc.
-
+You can regard **SimpleElement** as a kind of Virtual DOM, which helps improve DOM rendering speed.   
+* **SimpleDOM**  
+Many native DOM element such as `div, button, p` **SimpleElement** are already wrapped by **SimpleDOM** for you.  
+It offers many basic prototype functions such as `getDefaultProps`, etc.
 * **Component**  
 Inherited from **SimpleDOM**, **Component** is user-defined and highly flexible.  
 
-#### Component Lifecycle  
+#### Component Lifecycle
 1. `init()`  
 Invoked only once before the element is rendered. You should put all your initialization here.  
 
-2. `componentDidMount`  
+2. `mount()`  
 Invoked only once immediately after the element is rendered.  
 
-3. `componentWillUpdate`  
+3. `update()`  
 Invoked every time when `state` or `props` is updated or `forceUpdate` is called.   
-This is not called for the initial render.  
-
-4. `componentDidUpdate`  
 Invoked immediately after the element is done with updating rendering.  
 This is not called for the initial render.  
 
-5. `componentWillUnmount`    
-Invoked immediately before a component is unmounted from the DOM.    
+4. `unmount()`    
+Invoked immediately after a component is unmounted from the DOM.    
 
 #### Use wrapped native DOM elements
 ```html
@@ -216,6 +213,9 @@ let TodoItem = Simple.Component({
   },
   deleteTodoItem: function() {
     this.props.remove(this.props.key)
+  },
+  unmount: function() {
+    console.log('unmount component: ', this.props)
   }
 })
 
