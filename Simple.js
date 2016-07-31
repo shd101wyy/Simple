@@ -435,8 +435,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	SimpleDOM.prototype.removeSelf = function () {
-	  this.element.removeSelf();
 	  this.unmount();
+	  this.element.removeSelf();
 	};
 
 	SimpleDOM.prototype.getDOMElement = function () {

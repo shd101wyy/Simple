@@ -65,7 +65,7 @@ Invoked immediately after the element is done with updating rendering.
 This is not called for the initial render.  
 
 4. `unmount()`    
-Invoked immediately after a component is unmounted from the DOM.    
+Invoked immediately right before a component is unmounted from the DOM.    
 
 #### Use wrapped native DOM elements
 ```html
@@ -92,7 +92,7 @@ this.div({style: 'background-color: #454545'},
 
 Basically, it is in the format of
 ```javascript
-this.tagName([attributes], [content], [children]) // attributes, content, children can be omitted
+this.tagName([attributes], [...children]) // attributes, children can be omitted
 ```
 
 #### Create your own Component  
