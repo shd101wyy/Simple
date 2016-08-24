@@ -210,6 +210,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	SimpleElement.prototype._initialRender = function () {
 	  if (this.tagName === '#text') {
 	    this.element = document.createTextNode(this.children);
+	    this.children = null; // THIS IS IMPORTANT
 	    return this.element;
 	  }
 	  var _eventListeners = {};
@@ -228,6 +229,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var styleKey in val) {
 	          this.element.style[styleKey] = val[styleKey];
 	        }
+	      } else if (key === 'class' && val.constructor === Object) {
+	        var className = '';
+	        for (var c in val) {
+	          if (val[c]) {
+	            className += c + ' ';
+	          }
+	        }
+	        this.element.className = className;
 	      } else if (key === 'html') {
 	        this.element.innerHTML = val;
 	      } else {
@@ -258,6 +267,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	SimpleElement.prototype.removeSelf = function () {
 	  if (this.element && this.element.parentElement) {
+	    if (this.children instanceof Array) {
+	      // children might contain SimpleDOM
+	      this.children.forEach(function (child) {
+	        return child.removeSelf();
+	      });
+	    }
 	    this.element.parentElement.removeChild(this.element);
 	    this.element = null;
 	  }
@@ -289,6 +304,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  this.element = this.render();
+	  if (!this.element) {
+	    throw 'render function has to return a valid element';
+	  }
 	}
 
 	SimpleDOM.prototype = Object.create(SimpleDOM.prototype);
@@ -329,6 +347,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	SimpleDOM.prototype.forceUpdate = function () {
 	  var oldVD = this.element;
 	  this.element = this.render();
+	  if (!this.element) {
+	    throw 'render function has to return a valid element';
+	  }
 	  diff(oldVD, this.element);
 
 	  this.update();
@@ -391,6 +412,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var styleKey in val) {
 	          element.style[styleKey] = val[styleKey];
 	        }
+	      } else if (key === 'class' && val.constructor === Object) {
+	        var className = '';
+	        for (var c in val) {
+	          if (val[c]) {
+	            className += c + ' ';
+	          }
+	        }
+	        element.className = className;
 	      } else if (key === 'html') {
 	        element.innerHTML = val;
 	      } else {
@@ -430,6 +459,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    simpleElement_2.element = element;
+
+	    // unmount old
+	    var vd = vd1;
+	    while (vd && vd.constructor !== SimpleElement) {
+	      vd.unmount();
+	      vd = vd.element;
+	    }
+
+	    // mount new
+	    vd = vd2;
+	    while (vd && vd.constructor !== SimpleElement) {
+	      vd.mount(); // <- mount!
+	      vd = vd.element;
+	    }
 	    return element;
 	  }
 	}
@@ -466,7 +509,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (args[_i3]) {
 	          if (args[_i3].constructor === Array) {
 	            appendChildren(args[_i3]);
-	          } else if (args[_i3].constructor === SimpleDOM && !args.element) {
+	          } else if (args[_i3] instanceof SimpleDOM && !args[_i3].element) {
 	            continue;
 	          } else if (args[_i3].constructor === Number) {
 	            children.push(new SimpleElement('#text', null, args[_i3].toString()));
