@@ -402,8 +402,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (_eventListeners[key] !== val) {
 	          removeEvent(element, key, _eventListeners[key]);
 	          addEvent(element, key, val);
-	          events[key] = val;
 	        }
+	        events[key] = val;
 	      } else if (key === 'ref') {
 	        if (vd1.owner) {
 	          vd1.owner.refs[val] = element;

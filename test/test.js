@@ -158,3 +158,37 @@ let StressTest = Simple.Component({
 
 Simple.render(StressTest(), document.getElementById('app'))
 */
+
+var PopUp = Simple.Component({
+  init: function() {
+    this.login = this.login.bind(this)
+    this.enterDashboard = this.enterDashboard.bind(this)
+
+    this.state = {
+      userId: null,
+      loggedIn: false
+    }
+  },
+  login() {
+    console.log('clicked')
+  },
+  enterDashboard() {
+  },
+  render: function() {
+    if (this.state.loggedIn) {
+      return this.div({id: 'popup'},
+        this.button({id: 'newty', click: this.login}, 'Hello ' + this.state.userId))
+    } else {
+      return this.div({id: 'popup'},
+        this.button({id: 'newty', click: this.login}, 'Login'))
+    }
+  }
+})
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var popUp = PopUp()
+  Simple.render(popUp, document.body)
+
+  popUp.setState({userId: 'shd101wyy', loggedIn: true})
+})
