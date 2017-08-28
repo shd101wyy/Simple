@@ -1,5 +1,3 @@
-'use strict'
-
 function isNativeEvent(eventname) {
   return typeof(document.body["on" + eventname]) !== "undefined";
 }
@@ -355,4 +353,4 @@ for (let i = 0; i < validTags.length; i++) {
 
 SimpleDOM.prototype.constructor = SimpleDOM
 
-module.exports = SimpleDOM
+export default SimpleDOM

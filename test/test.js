@@ -6,13 +6,13 @@ let demo = Demo('Hello ', 'World')
 Simple.render(demo, document.getElementById('app'))
 */
 
-/*
+
 let Greetings = Simple.Component(function(name) {
   return this.div(`Hello ${name}!`)
 })
 
 Simple.render(Greetings('Sexy Aaron'), document.body)
-*/
+
 /*
 let EventComponent = Simple.Component({
   init: function() {
@@ -159,6 +159,7 @@ let StressTest = Simple.Component({
 Simple.render(StressTest(), document.getElementById('app'))
 */
 
+/*
 var PopUp = Simple.Component({
   init: function() {
     this.login = this.login.bind(this)
@@ -192,3 +193,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
   popUp.setState({userId: 'shd101wyy', loggedIn: true})
 })
+*/

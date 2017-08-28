@@ -1,8 +1,7 @@
-'use strict'
-let SimpleDOM = require('./SimpleDOM.js')
+import SimpleDOM from "./SimpleDOM"
 
-function createSimpleComponent(methods) {
-  let SimpleComponent = function(props, ...children) {
+function createSimpleComponent(methods:object) {
+  let SimpleComponent = function(props, ...children):void {
     if (!this || !(this instanceof SimpleComponent)) {
       return new SimpleComponent(props)
     }
@@ -20,9 +19,9 @@ function createSimpleComponent(methods) {
   return SimpleComponent
 }
 
-function createStatelessSimpleComponent(func) {
-  let SimpleComponent = function(...args) {
-    if (!this || (!this instanceof SimpleComponent)) {
+function createStatelessSimpleComponent(func:Function) {
+  function SimpleComponent(...args):void {
+    if (!this || !(this instanceof SimpleComponent)) {
       return new SimpleComponent(...args)
     }
     this.render = func.bind(this, args)
@@ -35,12 +34,15 @@ function createStatelessSimpleComponent(func) {
   return SimpleComponent
 }
 
-function Component(arg) {
+/**
+ * Create Component
+ */
+function Component(arg:Function|object) {
   if (arg.constructor === Function) {
-    return createStatelessSimpleComponent(arg)
+    return createStatelessSimpleComponent(arg as Function)
   } else {
-    return createSimpleComponent(arg)
+    return createSimpleComponent(arg as object)
   }
 }
 
-module.exports = Component
+export default Component

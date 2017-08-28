@@ -1,16 +1,15 @@
-'use strict'
 /*
  * Event emitter class
  */
 
-let emitters = {}
+const emitters = {}
 
 function Emitter(initialState = {}) {
   this.subscriptions = {}
   this.id = null
 
   if (initialState.constructor === Function) {
-    let initFunc = initialState
+    const initFunc = initialState as Function
     this.state = {}
     initFunc.call(this)
   } else {
@@ -29,7 +28,7 @@ Emitter.prototype.registerId = function(id) {
   }
 }
 
-Emitter.getEmitterById = function(id) {
+Emitter['getEmitterById'] = function(id) {
   return emitters[id]
 }
 
@@ -83,4 +82,4 @@ Emitter.prototype.getState = function() {
 }
 */
 
-module.exports = Emitter
+export default Emitter

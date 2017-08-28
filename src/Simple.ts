@@ -1,16 +1,14 @@
-'use strict'
+import Component from "./Component"
+import Emitter from "./Emitter"
 
-let Component = require('./Component.js')
-let Emitter = require('./Emitter.js')
-
-let render = function(component, domElement) {
+function render(component, domElement) {
   let element = component._initialRender()
   if (element) {
     domElement.appendChild(element)
   }
 }
 
-let createEmitter = function(initialState) {
+function createEmitter(initialState) {
   return new Emitter(initialState)
 }
 
@@ -22,7 +20,7 @@ let Simple = {
 }
 
 if (typeof(window) !== 'undefined') {
-  window.Simple = Simple
+  window['Simple'] = Simple
 }
 
 if (typeof(module) !== 'undefined') {
